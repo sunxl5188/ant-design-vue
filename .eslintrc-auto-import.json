@@ -78,7 +78,6 @@
     "toValue": true,
     "triggerRef": true,
     "unref": true,
-    "useAppStore": true,
     "useAttrs": true,
     "useCssModule": true,
     "useCssVars": true,

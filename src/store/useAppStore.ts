@@ -1,8 +1,9 @@
 import type { Locale } from 'ant-design-vue/es/locale-provider'
+import type { ThemeTokenType, SiderTabType } from '@/types/useAppStore.d.ts'
 import { defineStore } from 'pinia'
+import { fetch } from '@/utils/request'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import enUS from 'ant-design-vue/es/locale/en_US'
-import type { ThemeTokenType, SiderTabType } from '@/types/useAppStore.d.ts'
 
 type ThemeType = 'light' | 'dark'
 export type LanguageType = 'zh-CN' | 'en-US'
@@ -18,7 +19,8 @@ export const useAppStore = defineStore('app', {
     openKeys: [] as Array<string>, //当前展开的菜单项
     selectedKeys: [] as Array<string>, //当前选中的菜单项
     tabs: [] as Array<SiderTabType>, //标签页数据
-    refreshKey: 0 as number // 用于强制刷新页面的 key
+    refreshKey: 0 as number, // 用于强制刷新页面的 key
+    dictData: {} as Record<string, Array<{ text: string; value: any }>> //数据字典
   }),
   actions: {
     // 设置主题
@@ -63,6 +65,19 @@ export const useAppStore = defineStore('app', {
     // 设置需要缓存的页面名称数组
     setKeepArray(keepArray: Array<string>) {
       this.keepArray = keepArray
+    },
+    // 设置字典数据
+    async setDictData() {
+      return new Promise((resolve, reject) => {
+        fetch('/home/index/getSystemDictAll')
+          .then(res => {
+            if (res.code === 200) {
+              this.dictData = res.data
+              resolve(true)
+            } else resolve(false)
+          })
+          .catch(err => reject(err))
+      })
     }
   },
   getters: {

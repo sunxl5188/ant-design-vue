@@ -1,5 +1,5 @@
 <template>
-  <div :id="state.id" class="w-full h-80"></div>
+  <div :id="state.id" class="w-full" :style="`height: ${height}`"></div>
 </template>
 <!-- ECharts 渲染的 DOM 节点，id 保证唯一 -->
 <script setup lang="ts" name="BasePic">
@@ -35,6 +35,10 @@ const props = defineProps({
   series: {
     type: Object,
     default: () => ({})
+  },
+  height: {
+    type: String,
+    default: '300px'
   }
 })
 
@@ -83,7 +87,7 @@ const state = reactive({
 })
 
 onMounted(() => {
-  let chartDom = document.getElementById(state.id)
+  const chartDom = document.getElementById(state.id)
   state.myChart = echarts.init(chartDom)
   state.myChart.setOption(state.option)
   // 窗口大小变化时，自动调整图表尺寸

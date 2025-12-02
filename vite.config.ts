@@ -18,7 +18,7 @@ import { version } from './package.json'
 export default ({ mode }: { mode: any }) => {
   const env = loadEnv(mode, process.cwd(), '')
   console.log('🚀 ~ env:', env)
-  console.log('当前版本', version)
+  console.log('当前版本', version, env.MODE)
 
   return defineConfig({
     base: env.VITE_BASE,
@@ -77,15 +77,7 @@ export default ({ mode }: { mode: any }) => {
           /\.md$/ // .md
         ],
         // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
-        imports: [
-          'vue',
-          'vue-router',
-          'pinia',
-          'vue-i18n',
-          {
-            '@/store/useAppStore': ['useAppStore']
-          }
-        ],
+        imports: ['vue', 'vue-router', 'pinia', 'vue-i18n'],
         // eslint 报错解决：'ref' is not defined
         eslintrc: {
           // 默认 false, true 启用生成。生成一次就可以，避免每次工程启动都生成，一旦生成配置文件之后，最好把 enable 关掉，即改成 false。

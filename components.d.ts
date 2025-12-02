@@ -46,6 +46,7 @@ declare module 'vue' {
     ASwitch: typeof import('ant-design-vue/es')['Switch']
     ATabPane: typeof import('ant-design-vue/es')['TabPane']
     ATabs: typeof import('ant-design-vue/es')['Tabs']
+    BaseBar: typeof import('./src/components/echarts/BaseBar.vue')['default']
     BaseLine: typeof import('./src/components/echarts/BaseLine.vue')['default']
     BasePic: typeof import('./src/components/echarts/BasePic.vue')['default']
     BellOutlined: typeof import('@ant-design/icons-vue')['BellOutlined']
