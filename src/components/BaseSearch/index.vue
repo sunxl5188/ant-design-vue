@@ -1,0 +1,222 @@
+<template>
+  <div
+    class="base-search overflow-hidden ease-out duration-300"
+    :style="
+      isCollapsed
+        ? `height: ${form.boxHeight}px`
+        : `height: ${form.docHeight}px`
+    "
+  >
+    <!-- 这块是为了计算高度，不显示 -->
+    <a-row :gutter="[16, 0]" class="fixed -z-10 -top-full">
+      <a-col
+        v-for="(item, i) in formItem"
+        :key="i"
+        :xs="24"
+        :sm="12"
+        :md="8"
+        :lg="6"
+        :xxl="6"
+      >
+        <a-form-item>
+          <a-input />
+        </a-form-item>
+      </a-col>
+      <a-col :xs="24" :sm="12" :md="8" :lg="6" :xxl="6">
+        <a-form-item>
+          <a-input />
+        </a-form-item>
+      </a-col>
+    </a-row>
+    <a-form
+      :model="formData"
+      autocomplete="off"
+      scrollToFirstError
+      class="flex-1"
+    >
+      <a-row :gutter="[16, 0]">
+        <a-col
+          v-for="(item, i) in form.getFormItem"
+          :key="i"
+          :xs="24"
+          :sm="12"
+          :md="8"
+          :lg="6"
+          :xxl="6"
+        >
+          <a-form-item>
+            <a-input
+              v-if="!item.type || item.type === 'input'"
+              v-model:value="formData[item.prop]"
+              :placeholder="item.placeholder || $t('a.a17', [item.label])"
+              allowClear
+              :max-length="50"
+            />
+            <BaseSelect
+              v-if="item.type === 'select'"
+              v-model:value="formData[item.prop]"
+              :placeholder="item.placeholder || $t('a.a18', [item.label])"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="8" :lg="6" :xxl="6">
+          <a-form-item>
+            <a-space>
+              <a-button type="primary" @click="handleSearch">
+                {{ $t('a.a13') }}
+              </a-button>
+              <a-button @click="handleReset">{{ $t('a.a14') }}</a-button>
+              <div
+                v-if="form.collapsedShow"
+                class="button-collapsed"
+                @click="isCollapsed = !isCollapsed"
+              >
+                <div>{{ isCollapsed ? $t('a.a15') : $t('a.a16') }}</div>
+                <DownOutlined
+                  class="transition-all"
+                  :class="{ 'rotate-180': isCollapsed }"
+                />
+              </div>
+            </a-space>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
+  </div>
+</template>
+
+<script setup lang="ts" name="BaseSearch">
+import { useAppStore } from '@/store'
+import BaseSelect from '../BaseSelect'
+import { slice } from 'lodash-es'
+
+type valueType = string | number | undefined | Array<any>
+interface FormItemType {
+  label: string
+  prop: string
+  value: valueType
+  type?: string
+  placeholder?: string
+  options?: Array<{ label: string; value: string | number | boolean }>
+}
+
+interface PropsType {
+  formItem: FormItemType[]
+}
+
+const props = withDefaults(defineProps<PropsType>(), {
+  formItem: () => {
+    return [
+      { label: '账号', prop: 'account', value: undefined },
+      { label: '姓名', prop: 'name', value: undefined },
+      {
+        label: '性别',
+        prop: 'gender',
+        value: undefined,
+        type: 'select',
+        dict: 'sex',
+        options: [
+          { label: '男', value: '男' },
+          { label: '女', value: '女' }
+        ]
+      },
+      { label: '手机号', prop: 'phone', value: undefined },
+      { label: '用户状态', prop: 'status', value: undefined },
+      {
+        label: '用户类型',
+        prop: 'type',
+        value: undefined,
+        type: 'select',
+        options: [
+          { label: '管理员', value: '管理员' },
+          { label: '普通用户', value: '普通用户' }
+        ]
+      },
+      {
+        label: '部门',
+        prop: 'dept',
+        value: undefined
+      }
+    ]
+  }
+})
+
+let resizeObserver: ResizeObserver | null = null
+const appStore = useAppStore()
+const { themeToken } = toRefs(appStore)
+const defaultForm: Record<string, valueType> = {}
+const emit = defineEmits(['search'])
+const form = reactive({
+  isCollapsed: false,
+  collapsedShow: false,
+  endIndex: 0,
+  boxHeight: 0,
+  docHeight: 0,
+  formData: { ...defaultForm },
+  getFormItem: computed((): FormItemType[] => {
+    return !form.isCollapsed
+      ? slice(props.formItem, 0, form.endIndex)
+      : props.formItem
+  }),
+  //提交数据
+  handleSearch() {
+    emit('search', form.formData)
+  },
+  //重置表单
+  handleReset() {
+    form.formData = { ...defaultForm }
+    form.handleSearch()
+  },
+  //监听表单宽度变化
+  handleResize() {
+    setTimeout(() => {
+      const len = props.formItem.length
+      const rowDom: any = document.querySelector('.base-search .ant-row')
+      const colDom: any = document.querySelector('.base-search .ant-col')
+      const colHeight = colDom?.offsetHeight || 44
+      const rowCol = Math.round(rowDom.offsetWidth / colDom.offsetWidth)
+      form.boxHeight = rowDom.offsetHeight
+      form.docHeight = colHeight * 2
+      form.endIndex = rowCol * 2 - 1
+      form.collapsedShow = len > form.endIndex
+    }, 300)
+  }
+})
+
+onMounted(() => {
+  props.formItem.forEach(item => {
+    defaultForm[item.prop] = item.value || undefined
+  })
+  form.formData = { ...defaultForm }
+  //监听元素尺寸变化
+  form.handleResize()
+  resizeObserver = new ResizeObserver(() => {
+    form.handleResize()
+  })
+  resizeObserver.observe(document.querySelector('.base-search') as Element)
+})
+
+//卸载时取消监听
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.unobserve(document.querySelector('.base-search') as Element)
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+})
+
+const { isCollapsed, formData, handleSearch, handleReset } = toRefs(form)
+</script>
+
+<style lang="less" scoped>
+.button-collapsed {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: v-bind('themeToken.colorPrimary');
+  user-select: none;
+}
+:deep(.ant-form-item) {
+  margin-bottom: 12px;
+}
+</style>

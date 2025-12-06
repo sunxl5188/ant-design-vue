@@ -26,6 +26,8 @@ export const loginData = {
   permissions: [
     '874ccafa-faa4-4f49-91df-40ce905d0e03',
     '4e3d5922-dcc3-4b04-aa97-c161a2dccd1b',
-    '766b255a-99af-413e-a5d7-cb1ab04efa26'
+    '766b255a-99af-413e-a5d7-cb1ab04efa26',
+    'a6364305-2e0f-4e8b-a3bc-9a0109610502',
+    '65a63974-e526-459e-823e-721c824a0a80'
   ]
 }

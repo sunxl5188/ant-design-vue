@@ -9,6 +9,14 @@
     "a7": "Workplace",
     "a8": "Dashboard",
     "a9": "Analysis",
-    "a10": "Monitor"
+    "a10": "System Management",
+    "a11": "User Management",
+    "a12": "Role Management",
+    "a13": "Search",
+    "a14": "Reset",
+    "a15": "Collapse",
+    "a16": "Expand",
+    "a17": "Please enter {0}",
+    "a18": "Please select {0}"
   }
 }

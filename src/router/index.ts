@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import layout from '@/layout/index.vue'
 //import cookies from '@/utils/cookies'
-import { useUserStore } from '@/store/useUserStore'
+import { useUserStore, useAppStore } from '@/store'
 
 const whiteList: Array<string> = [
   '/login',
@@ -98,15 +98,39 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           keepAlive: true,
           auth: '4e3d5922-dcc3-4b04-aa97-c161a2dccd1b'
         }
+      }
+    ]
+  },
+  {
+    path: '/system',
+    name: 'system',
+    component: layout,
+    redirect: { name: 'User' },
+    meta: {
+      title: 'a.a10',
+      icon: 'SettingOutlined',
+      keepAlive: true,
+      auth: '766b255a-99af-413e-a5d7-cb1ab04efa26'
+    },
+    children: [
+      {
+        path: 'user',
+        name: 'User',
+        component: () => import('@/views/system/user.vue'),
+        meta: {
+          title: 'a.a11',
+          keepAlive: true,
+          auth: '65a63974-e526-459e-823e-721c824a0a80'
+        }
       },
       {
-        path: 'monitor',
-        name: 'Monitor',
-        component: () => import('@/views/dashboard/monitor.vue'),
+        path: 'role',
+        name: 'Role',
+        component: () => import('@/views/system/role.vue'),
         meta: {
-          title: 'a.a10', //监控页
+          title: 'a.a12',
           keepAlive: true,
-          auth: '766b255a-99af-413e-a5d7-cb1ab04efa26'
+          auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610502'
         }
       }
     ]
@@ -276,32 +300,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: '/system',
-    name: 'system',
-    component: layout,
-    redirect: { name: 'role-list' },
-    meta: {
-      title: '系统管理',
-      icon: 'windowsOutlined',
-      keepAlive: true,
-      auth: ''
-    },
-    children: [
-      {
-        path: 'role-list',
-        name: 'RoleList',
-        component: () => import('@/views/system/RoleList.vue'),
-        meta: { title: '角色管理', keepAlive: true, auth: '' }
-      },
-      {
-        path: 'permission-list',
-        name: 'PermissionList',
-        component: () => import('@/views/system/PermissionList.vue'),
-        meta: { title: '个人设置', keepAlive: true, auth: '' }
-      }
-    ]
-  },
-  {
     path: '/system1',
     name: 'system1',
     component: () => import('@/views/system/RoleList.vue'),
@@ -333,6 +331,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
+  const appStore = useAppStore()
   //设置页面标题
   if (to.meta.title) {
     //判断是否有标题
@@ -348,6 +347,7 @@ router.beforeEach(async (to, from, next) => {
       await userStore.generateRoutes()
       next({ path: to.path, replace: true })
     } else {
+      appStore.setSelectKeys(to.path)
       next()
     }
   } else if (whiteList.indexOf(to.path) !== -1) {

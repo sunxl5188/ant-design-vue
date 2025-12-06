@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 import * as echarts from 'echarts'
 
 let myChart: echarts.ECharts | null = null
+let resizeObserver: ResizeObserver | null = null
 
 const props = defineProps({
   data: {
@@ -20,10 +21,18 @@ const props = defineProps({
     default: () => ({})
   },
   color: {
-    type: Array,
-    default: () => {
-      return []
-    }
+    type: Array as () => string[],
+    default: () => [
+      '#5470c6',
+      '#91cc75',
+      '#fac858',
+      '#ee6666',
+      '#73c0de',
+      '#3ba272',
+      '#fc8452',
+      '#9a60b4',
+      '#ea7ccc'
+    ]
   },
   height: {
     type: String,
@@ -38,13 +47,16 @@ const props = defineProps({
 const state = reactive({
   id: 'echarts-' + uuid(),
   option: {
-    color: ['#3398DB'],
+    color: props.color,
     tooltip: {
-      trigger: 'item'
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
     },
     xAxis: {
       type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
       axisLine: {
         lineStyle: {
           color: '#d1d5db'
@@ -74,7 +86,7 @@ const state = reactive({
     grid: {
       left: '10%',
       right: '4%',
-      top: '15%',
+      top: '10%',
       bottom: '15%'
     },
     series: [
@@ -82,7 +94,7 @@ const state = reactive({
         name: '',
         type: 'bar',
         barMaxWidth: 55,
-        barMinWidth: 30,
+        // barMinWidth: 30,
         label: {
           show: false
         },
@@ -90,7 +102,12 @@ const state = reactive({
           show: false
         },
         itemStyle: {
-          borderRadius: [8, 8, 0, 0]
+          borderRadius: [8, 8, 0, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#83bff6' },
+            { offset: 0.5, color: '#188df0' },
+            { offset: 1, color: '#188df0' }
+          ])
         },
         data: props.data,
         ...props.series
@@ -102,17 +119,27 @@ const state = reactive({
     if (myChart) myChart.resize()
   }
 })
+
 onMounted(() => {
   const chartDom = document.getElementById(state.id)
   if (chartDom) {
     myChart = echarts.init(chartDom)
     myChart.setOption(state.option)
+    // 监听元素尺寸变化
+    resizeObserver = new ResizeObserver(() => state.resizeChart())
+    resizeObserver.observe(chartDom)
   }
   window.addEventListener('resize', state.resizeChart)
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
   window.removeEventListener('resize', state.resizeChart)
+  if (resizeObserver) {
+    const chartDom = document.getElementById(state.id)
+    if (chartDom) resizeObserver.unobserve(chartDom)
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
 })
 
 watch(

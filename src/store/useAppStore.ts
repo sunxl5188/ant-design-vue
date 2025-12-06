@@ -98,7 +98,8 @@ export const useAppStore = defineStore('app', {
       'menuState',
       'tabs',
       'selectedKeys',
-      'openKeys'
+      'openKeys',
+      'dictData'
     ]
   }
 })

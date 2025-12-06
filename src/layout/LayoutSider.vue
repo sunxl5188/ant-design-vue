@@ -2,7 +2,7 @@
   <a-layout-sider
     v-model:collapsed="appStore.collapsed"
     breakpoint="lg"
-    collapsed-width="0"
+    :collapsed-width="state.collapsedWidth"
     :trigger="null"
     :style="state.styleObj"
     @collapse="handleCollapse"
@@ -46,7 +46,7 @@
         </a-sub-menu>
         <a-menu-item v-else :key="item.key + ''" :label="item.title">
           <component v-if="item.icon" :is="item.icon" />
-          {{ $t(item.title) }}
+          <span class="ant-menu-title-content">{{ $t(item.title) }}</span>
         </a-menu-item>
       </template>
     </a-menu>
@@ -66,16 +66,17 @@ interface StateType {
   preOpenKeys: Array<string>
   styleObj: Record<string, string>
   items: Array<SiderTabType>
+  collapsedWidth: number
 }
 
 const state = reactive<StateType>({
   preOpenKeys: [],
   styleObj: {},
-  items: []
+  items: [],
+  collapsedWidth: 80
 })
 
 const handleSelect = ({ key, item }: { key: string; item: SiderTabType }) => {
-  appStore.setSelectKeys(key)
   router.push(key)
   const tabsData = [...appStore.tabs]
   const exists = tabsData.findIndex(tab => tab.key === key)
@@ -97,4 +98,21 @@ const handleOpenChange = (openKeys: Array<string>) => {
 const handleCollapse = (collapsed: boolean) => {
   appStore.toggleCollapsed(collapsed)
 }
+
+const handleResize = () => {
+  if (window.innerWidth < 992) {
+    state.collapsedWidth = 0
+  } else {
+    state.collapsedWidth = 80
+  }
+}
+
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>

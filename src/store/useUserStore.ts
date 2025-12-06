@@ -18,15 +18,20 @@ export const useUserStore = defineStore('user', {
   actions: {
     //登录
     async login(data: any): Promise<boolean> {
+      const appStore = useAppStore()
       let boole: boolean = false
       if (data.userName === 'admin' && data.password === 'admin') {
         this.token = loginData.token
         this.userInfo = loginData.user
         this.permissions = loginData.permissions
         await this.generateRoutes()
+        // 获取字典数据
+        await appStore.setDictData()
         boole = true
       } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(data.phone)) {
         await this.generateRoutes()
+        // 获取字典数据
+        await appStore.setDictData()
         boole = true
       }
       return boole
@@ -57,7 +62,6 @@ export const useUserStore = defineStore('user', {
               spin: false
             }
           ])
-          appStore.setSelectKeys(path as string)
         }
         this.sidebarRouters = this.generateSidebar(
           constantRoutes[i]?.children || []

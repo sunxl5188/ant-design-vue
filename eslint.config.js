@@ -85,7 +85,7 @@ export default defineConfig([
       'vue/singleline-html-element-content-newline': 0, // 关闭单行元素必须换行符
       'vue/multiline-html-element-content-newline': 0, // 关闭多行元素必须换行符
       // 要求每一行标签的最大属性不超五个
-      'vue/max-attributes-per-line': ['warn', { singleline: 5 }],
+      'vue/max-attributes-per-line': ['off', { singleline: 5 }],
       'no-unused-vars': [
         'error',
         { varsIgnorePattern: '^_', argsIgnorePattern: '^_' }

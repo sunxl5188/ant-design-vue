@@ -19,6 +19,9 @@ echarts.use([
   LabelLayout
 ])
 
+let myChart: echarts.ECharts | null = null
+let resizeObserver: ResizeObserver | null = null
+
 const props = defineProps({
   data: {
     type: Array,
@@ -36,6 +39,32 @@ const props = defineProps({
     type: Object,
     default: () => ({})
   },
+  legend: {
+    type: Object,
+    default: () => ({})
+  },
+  tooltip: {
+    type: Object,
+    default: () => ({})
+  },
+  grid: {
+    type: Object,
+    default: () => ({})
+  },
+  color: {
+    type: Array as () => string[],
+    default: () => [
+      '#5470c6',
+      '#91cc75',
+      '#fac858',
+      '#ee6666',
+      '#73c0de',
+      '#3ba272',
+      '#fc8452',
+      '#9a60b4',
+      '#ea7ccc'
+    ]
+  },
   height: {
     type: String,
     default: '300px'
@@ -45,15 +74,24 @@ const props = defineProps({
 const state = reactive({
   // 组件响应式状态
   id: 'echarts-' + uuid(),
-  myChart: null as echarts.ECharts | null,
   option: {
+    color: props.color,
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
+      ...props.tooltip
     },
     legend: {
       orient: 'horizontal',
       button: '1%',
-      left: 'left'
+      left: 'left',
+      ...props.legend
+    },
+    grid: {
+      left: '10%',
+      right: '10%',
+      top: '10%',
+      bottom: '10%',
+      ...props.grid
     },
     series: [
       {
@@ -82,31 +120,41 @@ const state = reactive({
     ]
   },
   resizeChart() {
-    if (state.myChart) state.myChart.resize()
+    if (myChart) myChart.resize()
   }
 })
 
 onMounted(() => {
   const chartDom = document.getElementById(state.id)
-  state.myChart = echarts.init(chartDom)
-  state.myChart.setOption(state.option)
-  // 窗口大小变化时，自动调整图表尺寸
+  if (chartDom) {
+    myChart = echarts.init(chartDom)
+    myChart.setOption(state.option)
+    // 监听元素尺寸变化
+    resizeObserver = new ResizeObserver(() => state.resizeChart())
+    resizeObserver.observe(chartDom)
+  }
   window.addEventListener('resize', state.resizeChart)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', state.resizeChart)
-  if (state.myChart) {
-    state.myChart.dispose()
-    state.myChart = null
+  if (resizeObserver) {
+    const chartDom = document.getElementById(state.id)
+    if (chartDom) resizeObserver.unobserve(chartDom)
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+  if (myChart) {
+    myChart.dispose()
+    myChart = null
   }
 })
 
 watch(
   () => props.data,
   newData => {
-    if (state.myChart) {
-      state.myChart.setOption({
+    if (myChart) {
+      myChart.setOption({
         series: [
           {
             data: newData

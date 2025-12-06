@@ -7,6 +7,7 @@ import * as echarts from 'echarts'
 import { v4 as uuid } from 'uuid'
 
 let myChart: echarts.ECharts | null = null
+let resizeObserver: ResizeObserver | null = null
 
 const props = defineProps({
   data: {
@@ -35,12 +36,13 @@ const state = reactive({
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '5%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
     },
     yAxis: {
       type: 'value'
@@ -66,13 +68,21 @@ onMounted(() => {
   if (chartDom) {
     myChart = echarts.init(chartDom)
     myChart.setOption(state.option)
+    // 监听元素尺寸变化
+    resizeObserver = new ResizeObserver(() => state.resizeChart())
+    resizeObserver.observe(chartDom)
   }
-  // 窗口大小变化时，自动调整图表尺寸
   window.addEventListener('resize', state.resizeChart)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', state.resizeChart)
+  if (resizeObserver) {
+    const chartDom = document.getElementById(state.id)
+    if (chartDom) resizeObserver.unobserve(chartDom)
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
   if (myChart) {
     myChart.dispose()
     myChart = null

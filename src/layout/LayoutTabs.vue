@@ -65,7 +65,6 @@ const state = reactive({
     data.splice(index, 1)
     appStore.setTabs(data)
     const activeKey = tabs.value[index - 1]?.key || ''
-    appStore.setSelectKeys(activeKey)
     if (e === currentTab.value) {
       router.push(activeKey || '/workplace')
     }
@@ -92,7 +91,6 @@ const state = reactive({
     }
   },
   handleChange(key: string) {
-    appStore.setSelectKeys(key)
     const keyArr = key.split('/')
     if (keyArr.length > 2) {
       appStore.setOpenKeys([`/${keyArr[1]}`])
