@@ -115,8 +115,8 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
     children: [
       {
         path: 'user',
-        name: 'User',
-        component: () => import('@/views/system/user.vue'),
+        name: 'UserList',
+        component: () => import('@/views/system/userList.vue'),
         meta: {
           title: 'a.a11',
           keepAlive: true,
@@ -125,8 +125,8 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
       },
       {
         path: 'role',
-        name: 'Role',
-        component: () => import('@/views/system/role.vue'),
+        name: 'RoleList',
+        component: () => import('@/views/system/roleList.vue'),
         meta: {
           title: 'a.a12',
           keepAlive: true,

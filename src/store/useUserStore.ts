@@ -26,15 +26,24 @@ export const useUserStore = defineStore('user', {
         this.permissions = loginData.permissions
         await this.generateRoutes()
         // 获取字典数据
-        await appStore.setDictData()
-        boole = true
+        const dictRes = await appStore.setDictData()
+        if (!dictRes) {
+          this.loginOut()
+        } else boole = true
       } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(data.phone)) {
         await this.generateRoutes()
         // 获取字典数据
-        await appStore.setDictData()
-        boole = true
+        const dictRes = await appStore.setDictData()
+        if (!dictRes) {
+          this.loginOut()
+        } else boole = true
       }
       return boole
+    },
+    loginOut() {
+      this.token = ''
+      this.userInfo = {}
+      this.permissions = []
     },
     //生成路由
     generateRoutes(): any {

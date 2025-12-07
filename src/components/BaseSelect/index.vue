@@ -3,7 +3,7 @@
     v-model:value="state.value"
     :placeholder="placeholder"
     :fieldNames="fieldNames"
-    :options="options"
+    :options="state.options"
     v-bind="state.selectProps"
     @change="state.handleChange"
   />
@@ -12,6 +12,7 @@
 <script setup lang="ts" name="BaseSelect">
 import type { SelectProps } from 'ant-design-vue'
 import { useAppStore } from '@/store'
+import { fetch } from '@/utils/request'
 
 interface StateType {
   value: string | number | Array<any> | undefined
@@ -48,18 +49,7 @@ const props = defineProps({
   options: {
     type: Array,
     default: () => {
-      return [
-        { label: '选项1', value: 'option1' },
-        { label: '选项2', value: 'option2' },
-        { label: '选项3', value: 'option3' },
-        { label: '选项4', value: 'option4' },
-        { label: '选项5', value: 'option5' },
-        { label: '选项6', value: 'option6' },
-        { label: '选项7', value: 'option7' },
-        { label: '选项8', value: 'option8' },
-        { label: '选项9', value: 'option9' },
-        { label: '选项10', value: 'option10' }
-      ]
+      return []
     }
   },
   fieldNames: {
@@ -70,7 +60,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:value'])
+const emit = defineEmits(['update:value', 'select'])
 const appStore = useAppStore()
 const { dictData } = toRefs(appStore)
 
@@ -85,16 +75,24 @@ const state = reactive<StateType>({
     showSearch: true
   },
   handleChange(value: any, option: any) {
-    console.log('select value:', value)
-    console.log('select option:', option)
     emit('update:value', value)
+    emit('select', { value, option })
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   // 如果传入了dict，则从store的dictData中获取对应的数据作为选项
   if (props.dict && dictData.value[props.dict]) {
-    state.options = dictData.value[props.dict]
+    state.options = dictData.value[props.dict] as Array<any>
+  } else if (props.api) {
+    // 如果传入了api，则调用对应的接口获取数据作为选项
+    const { code, data } = await fetch(props.api, props.params)
+    if (code === 200) {
+      state.options = data
+    }
+  } else {
+    // 否则使用传入的options作为选项
+    state.options = props.options
   }
 })
 

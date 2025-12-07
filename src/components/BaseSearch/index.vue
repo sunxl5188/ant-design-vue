@@ -56,6 +56,11 @@
               v-if="item.type === 'select'"
               v-model:value="formData[item.prop]"
               :placeholder="item.placeholder || $t('a.a18', [item.label])"
+              :dict="item.dict"
+              :api="item.api"
+              :params="item.params"
+              :options="item.options"
+              allowClear
             />
           </a-form-item>
         </a-col>
@@ -97,6 +102,9 @@ interface FormItemType {
   value: valueType
   type?: string
   placeholder?: string
+  dict?: string
+  api?: string
+  params?: Record<string, any>
   options?: Array<{ label: string; value: string | number | boolean }>
 }
 
@@ -106,38 +114,7 @@ interface PropsType {
 
 const props = withDefaults(defineProps<PropsType>(), {
   formItem: () => {
-    return [
-      { label: '账号', prop: 'account', value: undefined },
-      { label: '姓名', prop: 'name', value: undefined },
-      {
-        label: '性别',
-        prop: 'gender',
-        value: undefined,
-        type: 'select',
-        dict: 'sex',
-        options: [
-          { label: '男', value: '男' },
-          { label: '女', value: '女' }
-        ]
-      },
-      { label: '手机号', prop: 'phone', value: undefined },
-      { label: '用户状态', prop: 'status', value: undefined },
-      {
-        label: '用户类型',
-        prop: 'type',
-        value: undefined,
-        type: 'select',
-        options: [
-          { label: '管理员', value: '管理员' },
-          { label: '普通用户', value: '普通用户' }
-        ]
-      },
-      {
-        label: '部门',
-        prop: 'dept',
-        value: undefined
-      }
-    ]
+    return []
   }
 })
 

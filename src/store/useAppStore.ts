@@ -68,15 +68,15 @@ export const useAppStore = defineStore('app', {
     },
     // 设置字典数据
     async setDictData() {
-      return new Promise((resolve, reject) => {
-        fetch('/home/index/getSystemDictAll')
+      return new Promise(resolve => {
+        fetch('/home/index/webSystemDictAll')
           .then(res => {
             if (res.code === 200) {
               this.dictData = res.data
               resolve(true)
             } else resolve(false)
           })
-          .catch(err => reject(err))
+          .catch(() => resolve(false))
       })
     }
   },
