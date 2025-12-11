@@ -9,6 +9,9 @@
         <MenuUnfoldOutlined v-else class="text-base cursor-pointer" />
       </span>
       <a-space size="middle">
+        <base-tip :title="$t('a.a20')">
+          <ClearOutlined class="cursor-pointer" @click="updateCache" />
+        </base-tip>
         <a-badge
           count="5"
           :overflow-count="99"
@@ -52,10 +55,13 @@
 <script setup lang="ts" name="LayoutHeader">
 import { useAppStore, useUserStore } from '@/store'
 import { LocaleIcon, ThemeIcon } from '@/components/Setting'
+import { useModal } from '@/utils/useModal'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
 const { userInfo } = userStore
+const { notify } = useModal()
+
 const headerStyle = computed(() => ({
   height: '45px',
   lineHeight: '45px',
@@ -65,4 +71,10 @@ const headerStyle = computed(() => ({
   borderBottom:
     appStore.theme === 'dark' ? '1px solid #303030' : '1px solid #f0f0f0'
 }))
+
+//更新数据缓存等
+const updateCache = async () => {
+  await userStore.updateSystemCache()
+  notify.success('系统数据缓存已更新')
+}
 </script>

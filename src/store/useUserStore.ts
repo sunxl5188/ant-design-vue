@@ -27,16 +27,16 @@ export const useUserStore = defineStore('user', {
         await this.generateRoutes()
         // 获取字典数据
         const dictRes = await appStore.setDictData()
-        if (!dictRes) {
-          this.loginOut()
-        } else boole = true
+        if (dictRes) {
+          boole = true
+        } else this.loginOut()
       } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(data.phone)) {
         await this.generateRoutes()
         // 获取字典数据
         const dictRes = await appStore.setDictData()
-        if (!dictRes) {
-          this.loginOut()
-        } else boole = true
+        if (dictRes) {
+          boole = true
+        } else this.loginOut()
       }
       return boole
     },
@@ -121,6 +121,19 @@ export const useUserStore = defineStore('user', {
         })
       })
       return sidebar
+    },
+    //更新系统缓存数据
+    updateSystemCache(): Promise<boolean> {
+      return new Promise(resolve => {
+        const appStore = useAppStore()
+        this.token = loginData.token
+        this.userInfo = loginData.user
+        this.permissions = loginData.permissions
+        appStore
+          .setDictData()
+          .then(() => resolve(true))
+          .catch(() => resolve(false))
+      })
     }
   },
   persist: {

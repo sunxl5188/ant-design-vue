@@ -1,11 +1,7 @@
 <template>
   <div
     class="base-search overflow-hidden ease-out duration-300"
-    :style="
-      isCollapsed
-        ? `height: ${form.boxHeight}px`
-        : `height: ${form.docHeight}px`
-    "
+    :style="form.searchStyle"
   >
     <!-- 这块是为了计算高度，不显示 -->
     <a-row :gutter="[16, 0]" class="fixed -z-10 -top-full">
@@ -69,9 +65,15 @@
           <a-form-item>
             <a-space>
               <a-button type="primary" @click="handleSearch">
+                <template #icon><SearchOutlined /></template>
                 {{ $t('a.a13') }}
               </a-button>
-              <a-button @click="handleReset">{{ $t('a.a14') }}</a-button>
+              <a-button @click="handleReset">
+                <template #icon>
+                  <DeleteOutlined />
+                </template>
+                {{ $t('a.a14') }}
+              </a-button>
               <div
                 v-if="form.collapsedShow"
                 class="button-collapsed"
@@ -140,6 +142,13 @@ const form = reactive({
       ? props.formItem
       : slice(props.formItem, 0, form.endIndex)
   }),
+  searchStyle: computed(() => {
+    let style = ''
+    if(form.collapsedShow) {
+      style = form.isCollapsed ? `height: ${form.boxHeight}px` : `height: ${form.docHeight}px`
+    }
+    return style
+  }),
   //提交数据
   handleSearch() {
     emit('search', form.formData)
@@ -155,6 +164,7 @@ const form = reactive({
       const len = props.formItem.length
       const rowDom: any = document.querySelector('.base-search .ant-row')
       const colDom: any = document.querySelector('.base-search .ant-col')
+      if(!rowDom || !colDom) return
       const colHeight = colDom?.offsetHeight || 44
       const rowCol = Math.round(rowDom.offsetWidth / colDom.offsetWidth)
       form.boxHeight = rowDom.offsetHeight

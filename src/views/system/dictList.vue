@@ -4,9 +4,11 @@
   </a-card>
   <a-card size="small">
     <a-space class="mb-3">
-      <a-button type="primary">新增角色</a-button>
-      <a-button>导出</a-button>
-      <a-button>导入</a-button>
+      <a-button type="primary">新增字典</a-button>
+      <a-button type="primary">刷新缓存</a-button>
+      <a-button type="primary">导出</a-button>
+      <a-button type="primary">导入</a-button>
+      <a-button type="primary" danger>批量删除</a-button>
     </a-space>
     <BaseTable
       :loading="loading"
@@ -51,15 +53,15 @@
   </a-card>
 </template>
 
-<script setup lang="ts" name="RoleList">
+<script setup lang="ts" name="DictList">
 import type { TableColumnProps } from 'ant-design-vue'
 import BaseTable from '@/components/BaseTable'
 import BaseSearch from '@/components/BaseSearch'
 
 const search = reactive({
   formItem: [
-    { label: '角色名称', prop: 'name', value: undefined },
-    { label: '角色编码', prop: 'code', value: undefined }
+    { label: '字典名称', prop: 'name', value: undefined },
+    { label: '字典编码', prop: 'code', value: undefined }
   ],
   //搜索
   handleSearch(formData: any) {
@@ -71,24 +73,11 @@ const search = reactive({
 //表格
 const table = reactive({
   loading: false,
-  dataSource: [
-    {
-      id: 1,
-      name: '管理员',
-      code: 'admin',
-      createTime: '2023-01-01 12:00:00'
-    },
-    {
-      id: 2,
-      name: '普通用户',
-      code: 'user',
-      createTime: '2023-01-02 12:00:00'
-    }
-  ],
+  dataSource: [],
   columns: [
-    { title: '角色名称', dataIndex: 'name' },
-    { title: '角色编码', dataIndex: 'code' },
-    { title: '创建时间', dataIndex: 'createTime' },
+    { title: '字典名称', dataIndex: 'name' },
+    { title: '字典编码', dataIndex: 'code' },
+    { title: '描述', dataIndex: 'description' },
     {
       title: '操作',
       dataIndex: 'act',
@@ -118,3 +107,6 @@ const table = reactive({
 const { loading, dataSource, columns } = toRefs(table)
 </script>
 
+<style scoped lang="less">
+
+</style>

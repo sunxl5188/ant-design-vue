@@ -17,6 +17,8 @@
     "a15": "Collapse",
     "a16": "Expand",
     "a17": "Please enter {0}",
-    "a18": "Please select {0}"
+    "a18": "Please select {0}",
+    "a19": "Data Dictionary",
+    "a20": "Update Cache"
   }
 }

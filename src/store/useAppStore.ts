@@ -1,4 +1,3 @@
-import type { Locale } from 'ant-design-vue/es/locale-provider'
 import type { ThemeTokenType, SiderTabType } from '@/types/useAppStore.d.ts'
 import { defineStore } from 'pinia'
 import { fetch } from '@/utils/request'
@@ -13,7 +12,7 @@ export const useAppStore = defineStore('app', {
     theme: 'light' as ThemeType,
     themeToken: {} as ThemeTokenType,
     language: 'zh-CN' as LanguageType, //语言
-    antdLocale: zhCN as Locale, //antd语言包
+    antdLocale: zhCN, //antd语言包
     keepArray: [] as Array<string>, //需要缓存的页面名称数组
     collapsed: false as boolean, //侧边栏折叠状态
     openKeys: [] as Array<string>, //当前展开的菜单项
@@ -67,7 +66,7 @@ export const useAppStore = defineStore('app', {
       this.keepArray = keepArray
     },
     // 设置字典数据
-    async setDictData() {
+    async setDictData(): Promise<boolean> {
       return new Promise(resolve => {
         fetch('/home/index/webSystemDictAll')
           .then(res => {

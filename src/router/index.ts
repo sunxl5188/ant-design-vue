@@ -132,6 +132,16 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           keepAlive: true,
           auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610502'
         }
+      },
+      {
+        path: 'dict',
+        name: 'DictList',
+        component: () => import('@/views/system/dictList.vue'),
+        meta: {
+          title: 'a.a19', //数据字典
+          keepAlive: true,
+          auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610503'
+        }
       }
     ]
   }
