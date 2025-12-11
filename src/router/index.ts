@@ -118,7 +118,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         name: 'UserList',
         component: () => import('@/views/system/userList.vue'),
         meta: {
-          title: 'a.a11',
+          title: 'a.a11', //系统用户
           keepAlive: true,
           auth: '65a63974-e526-459e-823e-721c824a0a80'
         }
@@ -128,7 +128,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         name: 'RoleList',
         component: () => import('@/views/system/roleList.vue'),
         meta: {
-          title: 'a.a12',
+          title: 'a.a12', //系统角色
           keepAlive: true,
           auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610502'
         }

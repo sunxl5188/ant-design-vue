@@ -16,9 +16,10 @@ import { fetch } from '@/utils/request'
 
 interface StateType {
   value: string | number | Array<any> | undefined
-  options: Array<any>
+  options: SelectProps['options']
   selectProps: SelectProps
   handleChange: (_value: any, _option: any) => void
+  handleLoad: () => Promise<void>
 }
 
 const props = defineProps({
@@ -47,7 +48,7 @@ const props = defineProps({
     default: () => ({})
   },
   options: {
-    type: Array,
+    type: Array as () => SelectProps['options'],
     default: () => {
       return []
     }
@@ -60,7 +61,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:value', 'select'])
+const emit = defineEmits(['update:value', 'change'])
 const appStore = useAppStore()
 const { dictData } = toRefs(appStore)
 
@@ -76,7 +77,14 @@ const state = reactive<StateType>({
   },
   handleChange(value: any, option: any) {
     emit('update:value', value)
-    emit('select', { value, option })
+    emit('change', value, option)
+  },
+  // 从接口加载数据
+  async handleLoad() {
+    const { code, data } = await fetch(props.api, { ...props.params })
+    if (code === 200) {
+      state.options = data
+    }
   }
 })
 

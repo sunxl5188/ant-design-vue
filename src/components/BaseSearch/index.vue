@@ -56,11 +56,12 @@
               v-if="item.type === 'select'"
               v-model:value="formData[item.prop]"
               :placeholder="item.placeholder || $t('a.a18', [item.label])"
+              :options="item.options || undefined"
               :dict="item.dict"
               :api="item.api"
-              :params="item.params"
-              :options="item.options"
-              allowClear
+              :params="item.params || {}"
+              :fieldNames="item.fieldNames || undefined"
+              :mode="item.multiple ? 'multiple' : undefined"
             />
           </a-form-item>
         </a-col>
@@ -91,6 +92,7 @@
 </template>
 
 <script setup lang="ts" name="BaseSearch">
+import type { SelectProps } from 'ant-design-vue'
 import { useAppStore } from '@/store'
 import BaseSelect from '../BaseSelect'
 import { slice } from 'lodash-es'
@@ -102,10 +104,12 @@ interface FormItemType {
   value: valueType
   type?: string
   placeholder?: string
+  options?: SelectProps['options']
   dict?: string
   api?: string
   params?: Record<string, any>
-  options?: Array<{ label: string; value: string | number | boolean }>
+  fieldNames?: Record<string, string>
+  multiple?: boolean
 }
 
 interface PropsType {
@@ -123,6 +127,7 @@ const appStore = useAppStore()
 const { themeToken } = toRefs(appStore)
 const defaultForm: Record<string, valueType> = {}
 const emit = defineEmits(['search'])
+
 const form = reactive({
   isCollapsed: false,
   collapsedShow: false,
@@ -131,9 +136,9 @@ const form = reactive({
   docHeight: 0,
   formData: { ...defaultForm },
   getFormItem: computed((): FormItemType[] => {
-    return !form.isCollapsed
-      ? slice(props.formItem, 0, form.endIndex)
-      : props.formItem
+    return form.isCollapsed
+      ? props.formItem
+      : slice(props.formItem, 0, form.endIndex)
   }),
   //提交数据
   handleSearch() {

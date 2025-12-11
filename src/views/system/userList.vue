@@ -69,6 +69,34 @@ import type { TableColumnProps } from 'ant-design-vue'
 import BaseTable from '@/components/BaseTable'
 import BaseSearch from '@/components/BaseSearch'
 
+const formItem = [
+  { label: '账号', prop: 'account', value: undefined },
+  { label: '姓名', prop: 'name', value: undefined },
+  {
+    label: '性别',
+    prop: 'gender',
+    value: undefined,
+    type: 'select',
+    dict: 'sex'
+  },
+  { label: '手机号', prop: 'phone', value: undefined },
+  { label: '用户状态', prop: 'status', value: undefined },
+  {
+    label: '用户类型',
+    prop: 'type',
+    value: undefined,
+    type: 'select',
+    options: [
+      { label: '管理员', value: '管理员' },
+      { label: '普通用户', value: '普通用户' }
+    ]
+  },
+  {
+    label: '部门',
+    prop: 'dept',
+    value: undefined
+  }
+]
 //表格
 const table = reactive({
   formItem: [
