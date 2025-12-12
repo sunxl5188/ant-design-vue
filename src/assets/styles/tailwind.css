@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  html, body, #app {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+  img, svg, video, canvas, audio, iframe, embed, object{
+    display: inline-block;
+    vertical-align: baseline;
   }
 }
+

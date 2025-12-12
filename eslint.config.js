@@ -3,7 +3,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import pluginVue from 'eslint-plugin-vue'
 import { defineConfig } from 'eslint/config'
-import { readFileSync } from 'fs'
+import { readFileSync } from 'node:fs'
 const eslintAuto = JSON.parse(
   readFileSync(new URL('./.eslintrc-auto-import.json', import.meta.url))
 )
@@ -25,7 +25,7 @@ export default defineConfig([
   tseslint.configs.recommended,
   pluginVue.configs['flat/essential'],
   {
-    files: ['**/*.vue', '**/*.{js,mjs,cjs,ts,mts,cts}'],
+    files: ['**/*.vue', '**/*.ts', '**/*.mts', '**/*.cts'],
     languageOptions: { parserOptions: { parser: tseslint.parser } },
     rules: {
       'vue/multi-word-component-names': 'off',

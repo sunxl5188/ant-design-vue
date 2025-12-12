@@ -73,7 +73,14 @@ const search = reactive({
 //表格
 const table = reactive({
   loading: false,
-  dataSource: [],
+  dataSource: [
+    {
+      id: 1,
+      name: '燃油类型',
+      code: 'fuel_type',
+      description: '车辆燃油类型字典'
+    }
+  ],
   columns: [
     { title: '字典名称', dataIndex: 'name' },
     { title: '字典编码', dataIndex: 'code' },
@@ -85,7 +92,9 @@ const table = reactive({
       fixed: 'right'
     }
   ] as TableColumnProps[],
-  attr: {},
+  attr: {
+    rowSelection: {}
+  },
   //加载数据
   handleLoad: async () => {
     table.loading = true
@@ -106,7 +115,3 @@ const table = reactive({
 
 const { loading, dataSource, columns } = toRefs(table)
 </script>
-
-<style scoped lang="less">
-
-</style>

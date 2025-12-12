@@ -5,6 +5,7 @@
     :collapsed-width="state.collapsedWidth"
     :trigger="null"
     :style="state.styleObj"
+    collapsible
     @collapse="handleCollapse"
   >
     <div class="flex justify-center items-center py-4">
@@ -14,8 +15,8 @@
       </h2>
     </div>
     <a-menu
-      v-model:openKeys="appStore.openKeys"
       v-model:selectedKeys="appStore.selectedKeys"
+      v-model:openKeys="appStore.openKeys"
       mode="inline"
       theme="dark"
       @select="handleSelect"
@@ -58,22 +59,20 @@ import type { SiderTabType } from '@/types/useAppStore.d.ts'
 import { useAppStore } from '@/store/useAppStore'
 import { useUserStore } from '@/store/useUserStore'
 
-const appStore = useAppStore()
-const userStore = useUserStore()
-const router = useRouter()
-
 interface StateType {
-  preOpenKeys: Array<string>
   styleObj: Record<string, string>
   items: Array<SiderTabType>
   collapsedWidth: number
 }
 
+const appStore = useAppStore()
+const userStore = useUserStore()
+const router = useRouter()
+
 const state = reactive<StateType>({
-  preOpenKeys: [],
   styleObj: {},
   items: [],
-  collapsedWidth: 80
+  collapsedWidth: 48
 })
 
 const handleSelect = ({ key, item }: { key: string; item: SiderTabType }) => {
@@ -92,6 +91,8 @@ const handleSelect = ({ key, item }: { key: string; item: SiderTabType }) => {
 }
 
 const handleOpenChange = (openKeys: Array<string>) => {
+  // 收起时禁止弹出子菜单
+  if (appStore.collapsed) return
   appStore.setOpenKeys(openKeys)
 }
 
@@ -103,7 +104,7 @@ const handleResize = () => {
   if (window.innerWidth < 992) {
     state.collapsedWidth = 0
   } else {
-    state.collapsedWidth = 80
+    state.collapsedWidth = 48
   }
 }
 
@@ -115,4 +116,5 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
+
 </script>

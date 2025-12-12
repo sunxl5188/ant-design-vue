@@ -5,14 +5,13 @@ import layout from '@/layout/index.vue'
 //import cookies from '@/utils/cookies'
 import { useUserStore, useAppStore } from '@/store'
 
-const whiteList: Array<string> = [
+const whiteList = new Set([
   '/login',
   '/register',
   '/recover',
   '/home',
   '/detail'
-]
-export const Layout = layout
+])
 
 /**
  * Note: 路由配置项
@@ -353,14 +352,14 @@ router.beforeEach(async (to, from, next) => {
   if (userStore.token) {
     if (to.path === '/login') {
       next({ path: '/' })
-    } else if (!userStore.routers.length) {
+    } else if (userStore.routers?.length === 0) {
       await userStore.generateRoutes()
       next({ path: to.path, replace: true })
     } else {
       appStore.setSelectKeys(to.path)
       next()
     }
-  } else if (whiteList.indexOf(to.path) !== -1) {
+  } else if (whiteList.has(to.path)) {
     // 在免登录白名单，直接进入
     next()
   } else {

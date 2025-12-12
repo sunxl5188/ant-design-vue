@@ -15,7 +15,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { version } from './package.json'
 
 // https://vite.dev/config/
-export default ({ mode }: { mode: any }) => {
+const createViteConfig = ({ mode }: { mode: any }) => {
   const env = loadEnv(mode, process.cwd(), '')
   console.log('🚀 ~ env:', env)
   console.log('当前版本', version, env.MODE)
@@ -120,7 +120,8 @@ export default ({ mode }: { mode: any }) => {
           changeOrigin: true,
           // 带选项写法：http://localhost:5173/api/bar -> http://jsonplaceholder.typicode.com/bar
           rewrite: (path: string) =>
-            path.replace(RegExp(`^${env.VITE_API}`), '')
+            path.replace(new RegExp(`^${env.VITE_API}`), '')
+          //path.replace(new RegExp(`^${env.VITE_API}`), '')
         }
       }
     },
@@ -160,3 +161,4 @@ export default ({ mode }: { mode: any }) => {
     }
   })
 }
+export default createViteConfig

@@ -1,8 +1,6 @@
 <template>
   <a-tabs
     v-model:activeKey="selectedKeys[0]"
-    hide-add
-    type="card"
     size="small"
     :tabBarStyle="state.tabBarStyle"
     @edit="state.handleClosable"
@@ -11,13 +9,13 @@
     <a-tab-pane v-for="item in tabs" :key="item.key">
       <template #tab>
         {{ $t(item.title) }}
-        <ReloadOutlined
+        <!-- <ReloadOutlined
           v-if="appStore.currentTab === item.key"
           class="text-gray-500 text-xs hover:text-primary"
           :spin="item.spin"
           :rotate="180"
           @click.stop="state.handleRefresh(item)"
-        />
+        /> -->
         <CloseOutlined
           v-if="item.key !== '/workplace' && appStore.currentTab === item.key"
           class="text-xs text-gray-500"
@@ -26,17 +24,22 @@
       </template>
     </a-tab-pane>
     <template #rightExtra>
-      <a-dropdown>
-        <a class="ant-dropdown-link" @click.prevent>
-          <MoreOutlined />
-        </a>
-        <template #overlay>
-          <a-menu @click="state.handleTabMenuClick">
-            <a-menu-item key="closeOther">{{ $t('a.a1') }}</a-menu-item>
-            <a-menu-item key="refresh">{{ $t('a.a2') }}</a-menu-item>
-          </a-menu>
-        </template>
-      </a-dropdown>
+      <div class="flex items-stretch">
+        <div class="border-slate-200 border-l border-solid px-2">
+          <ReloadOutlined />
+        </div>
+        <a-dropdown>
+          <a class="ant-dropdown-link" @click.prevent>
+            <MoreOutlined />
+          </a>
+          <template #overlay>
+            <a-menu @click="state.handleTabMenuClick">
+              <a-menu-item key="closeOther">{{ $t('a.a1') }}</a-menu-item>
+              <a-menu-item key="refresh">{{ $t('a.a2') }}</a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
     </template>
   </a-tabs>
 </template>
@@ -55,7 +58,7 @@ const state = reactive({
         appStore.theme === 'light'
           ? '#fff'
           : (appStore.themeToken.colorBgBase as string),
-      padding: '5px 16px',
+      padding: '0 16px',
       marginBottom: '0'
     }
   }),
@@ -80,7 +83,7 @@ const state = reactive({
     let data = [...tabs.value]
     if (key === 'closeOther') {
       data = data.filter(
-        item => item.key === currentTab.value || item.key === 'workplace'
+        item => item.key === currentTab.value || item.key === '/workplace'
       )
       appStore.setTabs(data)
     } else if (key === 'refresh') {
@@ -106,5 +109,10 @@ const state = reactive({
     margin-right: 0;
     margin-left: 8px;
   }
+}
+:deep(.ant-tabs-extra-content) {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
 }
 </style>
