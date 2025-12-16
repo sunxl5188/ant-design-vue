@@ -226,6 +226,8 @@ const teamList = ref(
     }
   ])
 )
+
+console.log('🚀 ~ :', 23232)
 </script>
 
 <style lang="less" scoped></style>

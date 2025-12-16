@@ -13,12 +13,13 @@ export const useAppStore = defineStore('app', {
     themeToken: {} as ThemeTokenType,
     language: 'zh-CN' as LanguageType, //语言
     antdLocale: zhCN, //antd语言包
-    keepArray: [] as Array<string>, //需要缓存的页面名称数组
     collapsed: false as boolean, //侧边栏折叠状态
     openKeys: [] as Array<string>, //当前展开的菜单项
     selectedKeys: [] as Array<string>, //当前选中的菜单项
     tabs: [] as Array<SiderTabType>, //标签页数据
-    refreshKey: 0 as number, // 用于强制刷新页面的 key
+    refreshKey: {} as Record<string, number>, // 用于强制刷新页面的 key
+    refreshState: false as boolean, // 强制刷新状态
+    keepAliveList: [] as Array<string>, //需要缓存的路由名称
     dictData: {} as Record<string, Array<{ text: string; value: any }>> //数据字典
   }),
   actions: {
@@ -58,12 +59,26 @@ export const useAppStore = defineStore('app', {
       this.tabs = tabData
     },
     // 强制刷新页面
-    refreshPage() {
-      this.refreshKey = Date.now()
+    refreshPage(keepName: string) {
+      this.refreshState = true
+      const list = [...this.keepAliveList]
+      const index = list.indexOf(keepName)
+      if (index > -1) {
+        this.refreshKey[keepName] = Date.now()
+        this.refreshState = false
+      } else {
+        this.refreshKey[keepName] = Date.now()
+        list.splice(index, 1)
+        this.keepAliveList = list
+        setTimeout(() => {
+          this.keepAliveList = [...list, keepName]
+          this.refreshState = false
+        }, 500)
+      }
     },
-    // 设置需要缓存的页面名称数组
-    setKeepArray(keepArray: Array<string>) {
-      this.keepArray = keepArray
+    //设置需要缓存的页面名称数组
+    setKeepAliveList(list: Array<string>) {
+      this.keepAliveList = list
     },
     // 设置字典数据
     async setDictData(): Promise<boolean> {

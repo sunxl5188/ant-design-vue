@@ -11,11 +11,24 @@
           { 'bg-gray-900': appStore.theme === 'dark' }
         ]"
       >
-        <router-view v-slot="{ Component }" :key="appStore.refreshKey">
-          <keep-alive :include="appStore.keepArray">
-            <component v-if="Component" :is="Component" />
-          </keep-alive>
-        </router-view>
+        <a-spin :spinning="appStore.refreshState">
+          <router-view v-slot="{ Component }">
+            <keep-alive
+              v-if="$route.meta?.keepAlive"
+              :include="appStore.keepAliveList"
+            >
+              <component
+                :is="Component"
+                :key="appStore.refreshKey[$route.name as string] || $route.name"
+              />
+            </keep-alive>
+            <component
+              v-else
+              :is="Component"
+              :key="appStore.refreshKey[$route.name as string] || $route.name"
+            />
+          </router-view>
+        </a-spin>
       </a-layout-content>
     </a-layout>
   </a-layout>

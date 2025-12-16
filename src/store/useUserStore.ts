@@ -67,8 +67,7 @@ export const useUserStore = defineStore('user', {
             {
               title: meta?.title as string,
               label: meta?.title as string,
-              key: path as string,
-              spin: false
+              key: path as string
             }
           ])
         }
@@ -76,6 +75,14 @@ export const useUserStore = defineStore('user', {
           constantRoutes[i]?.children || []
         )
         this.routers = router.getRoutes()
+        //设置需要缓存的页面名称数组
+        const keepAliveList: Array<string> = []
+        this.routers.forEach(route => {
+          if (route.meta?.keepAlive && route.name) {
+            keepAliveList.push(route.name as string)
+          }
+        })
+        appStore.setKeepAliveList(keepAliveList)
         resolve(true)
       })
     },

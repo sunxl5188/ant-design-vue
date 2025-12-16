@@ -50,9 +50,11 @@ interface PropsType {
   expanded?: boolean
   selectedRowKeys?: Array<any>
   selectedRows?: Array<any>
+  divId?: string
 }
 
 const emit = defineEmits(['rowSelection'])
+let resizeObserver: ResizeObserver | null = null
 
 const props = withDefaults(defineProps<PropsType>(), {
   loading: false,
@@ -75,7 +77,8 @@ const props = withDefaults(defineProps<PropsType>(), {
   },
   selectedRows: () => {
     return []
-  }
+  },
+  divId: 'table-card'
 })
 
 const rowSelection = {
@@ -98,9 +101,9 @@ const state = reactive({
   // 全局默认配置
   columnData: computed(() => {
     return props.columns.map(col => {
-      if (!('align' in col)) {
-        return { ...col, align: 'center' }
-      }
+      col.width = col.width || undefined
+      col.maxWidth = col.maxWidth || 230
+      col.minWidth = col.minWidth || 80
       return col
     })
   }),
@@ -113,7 +116,11 @@ const state = reactive({
       rowKey: 'id',
       bordered: true,
       minWidth: 80,
-      scroll: { x: 'max-content', scrollToFirstRowOnChange: true },
+      scroll: {
+        x: 'max-content',
+        y: undefined as string | number | undefined,
+        scrollToFirstRowOnChange: true
+      },
       //列表项是否可选择
       rowSelection: props.attr?.rowSelection ? rowSelection : null
     },
@@ -133,9 +140,9 @@ const state = reactive({
     if (pageSize && pageSize < 10) {
       obj = {
         current: 1,
-        pageSize: 10,
+        pageSize: 5,
         total: 0,
-        pageSizeOptions: [`${pageSize}`, '10', '20', '50', '100'],
+        pageSizeOptions: [`${pageSize}`, '10', '20', '30', '50'],
         showQuickJumper: false,
         showLessItems: true,
         showSizeChanger: false
@@ -173,6 +180,69 @@ const state = reactive({
     }
     // 过滤
     props.event?.onFilter?.(filters)
+  },
+  //计算表格高度
+  handleTableHeight() {
+    setTimeout(() => {
+      let paginationHeight = 0
+      let tableHeaderHeight = 0
+      let bodyPadding = 0
+      const id = `#${props.divId}`
+      const myTable = document.querySelector<HTMLElement>(`${id}`)
+      const bodyElement = document.querySelector<HTMLElement>(
+        `${id} .ant-card-body`
+      )
+
+      if (bodyElement) {
+        bodyPadding = getComputedStyle(bodyElement).paddingTop.match(
+          /\d+/
+        )?.[0] as unknown as number
+        bodyPadding = bodyPadding * 2 + 2
+      }
+
+      const header = document.querySelector<HTMLElement>(
+        `${id} .table-card-header`
+      )
+      if (!myTable && !header) return
+      const cardHeight = myTable?.offsetHeight || 0
+      const headerHeight = (header?.getBoundingClientRect()?.height || 0) + 8
+
+      tableHeaderHeight =
+        document.querySelector<HTMLElement>(`${id} .ant-table-header`)
+          ?.offsetHeight || 0
+      const pagination = document.querySelector<HTMLElement>(
+        `${id} .ant-pagination`
+      )
+      if (pagination) {
+        const pad =
+          getComputedStyle(pagination).marginTop.match(/\d+/)?.[0] || 0
+        paginationHeight = Number(pad) * 2 + pagination.offsetHeight
+      }
+      state.attribute.scroll.y =
+        cardHeight -
+        bodyPadding -
+        headerHeight -
+        tableHeaderHeight -
+        paginationHeight
+    }, 0)
+  }
+})
+
+onMounted(() => {
+  //监听元素尺寸变化
+  resizeObserver = new ResizeObserver(() => {
+    state.handleTableHeight()
+  })
+  const tableCard = document.getElementById(props.divId)
+  if (tableCard) resizeObserver.observe(tableCard)
+})
+
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    const tableCard = document.getElementById(props.divId)
+    if (tableCard) resizeObserver.unobserve(tableCard)
+    resizeObserver.disconnect()
+    resizeObserver = null
   }
 })
 

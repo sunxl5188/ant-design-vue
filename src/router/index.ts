@@ -94,7 +94,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/views/dashboard/analysis.vue'),
         meta: {
           title: 'a.a9', //分析页
-          keepAlive: true,
+          keepAlive: false,
           auth: '4e3d5922-dcc3-4b04-aa97-c161a2dccd1b'
         }
       }
@@ -128,7 +128,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/views/system/roleList.vue'),
         meta: {
           title: 'a.a12', //系统角色
-          keepAlive: true,
+          keepAlive: false,
           auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610502'
         }
       },
@@ -138,7 +138,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/views/system/dictList.vue'),
         meta: {
           title: 'a.a19', //数据字典
-          keepAlive: true,
+          keepAlive: false,
           auth: 'a6364305-2e0f-4e8b-a3bc-9a0109610503'
         }
       }

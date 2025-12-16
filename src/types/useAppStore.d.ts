@@ -54,7 +54,6 @@ export interface SiderTabType {
   label: string
   key: string
   icon?: any
-  spin?: boolean
   children?: Array<SiderTabType>
 }
 

@@ -67,7 +67,7 @@ const search = reactive({
   handleSearch(formData: any) {
     console.log('搜索数据', formData)
     table.handleLoad()
-  },
+  }
 })
 
 //表格

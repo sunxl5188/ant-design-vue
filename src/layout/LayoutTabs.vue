@@ -9,15 +9,8 @@
     <a-tab-pane v-for="item in tabs" :key="item.key">
       <template #tab>
         {{ $t(item.title) }}
-        <!-- <ReloadOutlined
-          v-if="appStore.currentTab === item.key"
-          class="text-gray-500 text-xs hover:text-primary"
-          :spin="item.spin"
-          :rotate="180"
-          @click.stop="state.handleRefresh(item)"
-        /> -->
         <CloseOutlined
-          v-if="item.key !== '/workplace' && appStore.currentTab === item.key"
+          v-if="item.key !== '/workplace'"
           class="text-xs text-gray-500"
           @click.stop="state.handleClosable(item.key)"
         />
@@ -25,17 +18,25 @@
     </a-tab-pane>
     <template #rightExtra>
       <div class="flex items-stretch">
-        <div class="border-slate-200 border-l border-solid px-2">
-          <ReloadOutlined />
-        </div>
+        <base-tip :title="$t('a.a2')">
+          <ReloadOutlined
+            class="border-slate-200 border-l border-solid px-2"
+            @click="state.handleTabMenuClick({ key: 'refresh' })"
+          />
+        </base-tip>
         <a-dropdown>
-          <a class="ant-dropdown-link" @click.prevent>
-            <MoreOutlined />
-          </a>
+          <MoreOutlined
+            class="border-slate-200 border-l border-solid px-2"
+            @click.prevent
+          />
           <template #overlay>
             <a-menu @click="state.handleTabMenuClick">
-              <a-menu-item key="closeOther">{{ $t('a.a1') }}</a-menu-item>
-              <a-menu-item key="refresh">{{ $t('a.a2') }}</a-menu-item>
+              <a-menu-item key="closeOther" :disabled="tabs.length <= 2">
+                {{ $t('a.a1') }}
+              </a-menu-item>
+              <a-menu-item key="closeAll" :disabled="tabs.length <= 1">
+                {{ $t('a.a21') }}
+              </a-menu-item>
             </a-menu>
           </template>
         </a-dropdown>
@@ -46,11 +47,12 @@
 
 <script setup lang="ts" name="LayoutTabs">
 import { useAppStore } from '@/store'
-import type { SiderTabType } from '@/types/useAppStore.d.ts'
 
 const appStore = useAppStore()
 const { tabs, selectedKeys, currentTab } = toRefs(appStore)
+const route = useRoute()
 const router = useRouter()
+
 const state = reactive({
   tabBarStyle: computed(() => {
     return {
@@ -58,7 +60,7 @@ const state = reactive({
         appStore.theme === 'light'
           ? '#fff'
           : (appStore.themeToken.colorBgBase as string),
-      padding: '0 16px',
+      padding: '0 0 0 16px',
       marginBottom: '0'
     }
   }),
@@ -72,13 +74,6 @@ const state = reactive({
       router.push(activeKey || '/workplace')
     }
   },
-  handleRefresh(item: SiderTabType) {
-    item.spin = true
-    setTimeout(() => {
-      item.spin = false
-      appStore.refreshPage()
-    }, 500)
-  },
   handleTabMenuClick({ key }: { key: string }) {
     let data = [...tabs.value]
     if (key === 'closeOther') {
@@ -86,10 +81,13 @@ const state = reactive({
         item => item.key === currentTab.value || item.key === '/workplace'
       )
       appStore.setTabs(data)
+    } else if (key === 'closeAll') {
+      data = data.filter(item => item.key === '/workplace')
+      appStore.setTabs(data)
     } else if (key === 'refresh') {
       const currentTabs = data.find(item => item.key === currentTab.value)
       if (currentTabs) {
-        state.handleRefresh(currentTabs)
+        appStore.refreshPage(route.name as string)
       }
     }
   },
@@ -104,10 +102,23 @@ const state = reactive({
 </script>
 
 <style scoped lang="less">
-.ant-tabs {
-  .ant-tabs-tab .anticon {
-    margin-right: 0;
-    margin-left: 8px;
+:deep(.ant-tabs-nav-list) {
+  .ant-tabs-tab {
+    &:not(:first-child) {
+      .ant-tabs-tab-btn {
+        padding-left: 16px;
+      }
+    }
+    .anticon {
+      margin-right: 0;
+      margin-left: 4px;
+      visibility: hidden;
+    }
+    &:hover {
+      .anticon {
+        visibility: visible;
+      }
+    }
   }
 }
 :deep(.ant-tabs-extra-content) {
