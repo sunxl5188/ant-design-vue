@@ -112,13 +112,13 @@ const table = reactive({
   dataSource: [
     {
       id: 1,
-      account: 'user1',
-      name: '姓名1',
+      account: '用户账号user1',
+      name: '张三姓名1',
       gender: '男',
       phone: '13800000001',
       dept: '北京国炬软件信息/低代码研发小组',
-      mainDept: '主部门1',
-      mainPost: '岗位1',
+      mainDept: '‌安全监察质量部',
+      mainPost: '负责安全监督',
       partPost: '',
       status: '启用',
       act: ''
@@ -132,7 +132,7 @@ const table = reactive({
       dept: '北京敲敲云科技',
       mainDept: '',
       mainPost: '岗位2',
-      partPost: '兼职2',
+      partPost: '质量管控',
       status: '禁用',
       act: ''
     },
@@ -239,8 +239,8 @@ const table = reactive({
       partPost: '兼职2',
       status: '禁用',
       act: ''
-    }
-    /* {
+    },
+    {
       id: 11,
       account: 'user11',
       name: '姓名11',
@@ -369,10 +369,10 @@ const table = reactive({
       partPost: '兼职2',
       status: '禁用',
       act: ''
-    } */
+    }
   ],
   columns: [
-    { title: '用户账号', dataIndex: 'account', align: 'center' },
+    { title: '用户账号', dataIndex: 'account', align: 'center', minWidth: 120 },
     { title: '用户姓名', dataIndex: 'name', align: 'center' },
     { title: '性别', dataIndex: 'gender', width: 80, align: 'center' },
     { title: '手机号', dataIndex: 'phone', align: 'center' },

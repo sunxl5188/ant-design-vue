@@ -11,7 +11,7 @@
           { 'bg-gray-900': appStore.theme === 'dark' }
         ]"
       >
-        <a-spin :spinning="appStore.refreshState">
+        <a-spin :spinning="appStore.refreshState" wrapperClassName="h-full">
           <router-view v-slot="{ Component }">
             <keep-alive
               v-if="$route.meta?.keepAlive"
@@ -42,3 +42,12 @@ import { useAppStore } from '@/store/useAppStore'
 
 const appStore = useAppStore()
 </script>
+<style lang="less" scoped>
+:deep(.ant-spin-nested-loading) {
+  &.h-full {
+    .ant-spin-container {
+      height: 100%;
+    }
+  }
+}
+</style>

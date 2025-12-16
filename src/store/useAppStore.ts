@@ -73,7 +73,7 @@ export const useAppStore = defineStore('app', {
         setTimeout(() => {
           this.keepAliveList = [...list, keepName]
           this.refreshState = false
-        }, 500)
+        }, 1000)
       }
     },
     //设置需要缓存的页面名称数组

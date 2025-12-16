@@ -113,11 +113,17 @@ const state = reactive({
       margin-right: 0;
       margin-left: 4px;
       visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease-out 0s;
     }
     &:hover {
       .anticon {
         visibility: visible;
+        opacity: 1;
       }
+    }
+    & + .ant-tabs-tab {
+      margin-left: 20px;
     }
   }
 }
