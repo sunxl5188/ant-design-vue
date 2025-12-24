@@ -121,22 +121,22 @@ export function useModal() {
   }
 
   const message: MessageType = {
-    success: (content, duration = 3, onClose) => {
-      Message.success({ content, duration, onClose })
+    success: (content, duration, onClose) => {
+      Message.success({ content, duration: duration || 3, onClose })
     },
-    error: (content, duration = 3, onClose) => {
-      Message.error({ content, duration, onClose })
+    error: (content, duration, onClose) => {
+      Message.error({ content, duration: duration || 3, onClose })
     },
-    info: (content, duration = 3, onClose) => {
-      Message.info({ content, duration, onClose })
+    info: (content, duration, onClose) => {
+      Message.info({ content, duration: duration || 3, onClose })
     },
-    warning: (content, duration = 3, onClose) => {
-      Message.warning({ content, duration, onClose })
+    warning: (content, duration, onClose) => {
+      Message.warning({ content, duration: duration || 3, onClose })
     },
-    warn: (content, duration = 3, onClose) => {
-      Message.warn({ content, duration, onClose })
+    warn: (content, duration, onClose) => {
+      Message.warn({ content, duration: duration || 3, onClose })
     },
-    loading: (content, duration = 0) => {
+    loading: (content, duration = 3) => {
       Message.loading({ content, duration })
     },
     destroy: () => {

@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 import router, { constantRoutes, dynamicRoutes } from '@/router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAppStore } from '@/store/useAppStore'
-import { loginData } from '@/mock' //模拟登录数据
 import { icons } from '@/utils/antdIcon'
+import { loginAccount } from '@/api/login'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -17,20 +17,26 @@ export const useUserStore = defineStore('user', {
   getters: {},
   actions: {
     //登录
-    async login(data: any): Promise<boolean> {
+    async login(params: any): Promise<boolean> {
       const appStore = useAppStore()
       let boole: boolean = false
-      if (data.userName === 'admin' && data.password === 'admin') {
-        this.token = loginData.token
-        this.userInfo = loginData.user
-        this.permissions = loginData.permissions
-        await this.generateRoutes()
-        // 获取字典数据
-        const dictRes = await appStore.setDictData()
-        if (dictRes) {
-          boole = true
-        } else this.loginOut()
-      } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(data.phone)) {
+      if (params.userName && params.password) {
+        const { code, data } = await loginAccount({
+          userName: params.userName,
+          password: params.password
+        })
+        if (code === 200) {
+          this.token = data.token
+          this.userInfo = data.userInfo
+          this.permissions = data.permissions
+          await this.generateRoutes()
+          // 获取字典数据
+          const dictRes = await appStore.setDictData()
+          if (dictRes) {
+            boole = true
+          } else this.loginOut()
+        }
+      } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(params.phone)) {
         await this.generateRoutes()
         // 获取字典数据
         const dictRes = await appStore.setDictData()
@@ -41,9 +47,12 @@ export const useUserStore = defineStore('user', {
       return boole
     },
     loginOut() {
-      this.token = ''
-      this.userInfo = {}
-      this.permissions = []
+      return new Promise(resolve => {
+        this.token = ''
+        this.userInfo = {}
+        this.permissions = []
+        resolve(true)
+      })
     },
     //生成路由
     generateRoutes(): any {
@@ -133,9 +142,6 @@ export const useUserStore = defineStore('user', {
     updateSystemCache(): Promise<boolean> {
       return new Promise(resolve => {
         const appStore = useAppStore()
-        this.token = loginData.token
-        this.userInfo = loginData.user
-        this.permissions = loginData.permissions
         appStore
           .setDictData()
           .then(() => resolve(true))

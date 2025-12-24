@@ -321,7 +321,7 @@ const state = reactive({
   handleSelectDate(item: { label: string; value: string }) {
     state.activeDate = item.value
     const today = dayjs()
-    let startDate = today
+    let startDate
     let endDate = today
     switch (item.value) {
       case 'week':
@@ -562,8 +562,7 @@ const table = reactive({
       title: '周涨幅',
       dataIndex: 'weekGrowth',
       align: 'center' as const,
-      sorter: (a: any, b: any) =>
-        parseFloat(a.weekGrowth) - parseFloat(b.weekGrowth)
+      sorter: (a: any, b: any) => Number(a.weekGrowth) - Number(b.weekGrowth)
     }
   ]
 })

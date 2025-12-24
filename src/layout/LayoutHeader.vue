@@ -28,7 +28,7 @@
             </div>
           </a>
           <template #overlay>
-            <a-menu>
+            <a-menu @click="handleClickMenu">
               <a-menu-item key="1">
                 <UserOutlined />
                 {{ $t('a.a3') }}
@@ -71,6 +71,18 @@ const headerStyle = computed(() => ({
   borderBottom:
     appStore.theme === 'dark' ? '1px solid #303030' : '1px solid #f0f0f0'
 }))
+
+const handleClickMenu = ({ key }: { key: string }) => {
+  if (key === '3') {
+    userStore.loginOut().then(() => {
+      notify.success('退出登录成功', '', {
+        onClose: () => {
+          location.reload()
+        }
+      })
+    })
+  }
+}
 
 //更新数据缓存等
 const updateCache = async () => {

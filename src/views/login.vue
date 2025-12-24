@@ -77,7 +77,14 @@
           </div>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" block @click="handleSubmit">登录</a-button>
+          <a-button
+            type="primary"
+            block
+            :loading="buttonState"
+            @click="handleSubmit"
+          >
+            登录
+          </a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -102,9 +109,10 @@ const userStore = useUserStore()
 const router = useRouter()
 const { notify } = useModal()
 const activeKey = ref<number>(1)
+const buttonState = ref<boolean>(false)
 const formData: UnwrapRef<LoginPropType> = reactive({
   userName: 'admin',
-  password: 'admin',
+  password: '123456',
   phone: '',
   code: '',
   autoLogin: true
@@ -122,14 +130,20 @@ const handleSubmit = (): void => {
   formRef.value
     .validate()
     .then(async () => {
+      buttonState.value = true
       const res = await userStore.login(formData)
+      console.log('🚀 ~ handleSubmit ~ res:', res)
       if (res) {
         notify.success('登录成功')
         router.push('/')
       } else {
         notify.error('登录失败,请检查您的账户信息')
       }
+      buttonState.value = false
     })
-    .catch((err: any) => err)
+    .catch((err: any) => {
+      console.log('Validation Failed:', err)
+      buttonState.value = false
+    })
 }
 </script>

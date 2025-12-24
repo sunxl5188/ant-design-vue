@@ -1,4 +1,4 @@
-import type { NotificationArgsProps } from 'ant-design-vue/es/notification'
+import type { NotificationArgsProps, MessageArgsProps } from 'ant-design-vue'
 
 export interface modalType {
   info: (
@@ -62,7 +62,11 @@ export interface NotifyType {
 }
 
 export interface MessageType {
-  success: (_content: string, _duration?: number, _onClose?: () => void) => void
+  success: (
+    _content: string,
+    _duration?: number,
+    _onClose?: MessageArgsProps['onClose']
+  ) => void
   error: (_content: string, _duration?: number, _onClose?: () => void) => void
   info: (_content: string, _duration?: number, _onClose?: () => void) => void
   warning: (_content: string, _duration?: number, _onClose?: () => void) => void

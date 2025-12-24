@@ -7,7 +7,6 @@
 import { useAppStore } from '@/store/useAppStore'
 const appStore = useAppStore()
 
-/* eslint-disable */
 const configProvider = computed(() => {
   return {
     theme: {
