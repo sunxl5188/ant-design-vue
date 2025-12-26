@@ -34,7 +34,7 @@ export const useUserStore = defineStore('user', {
           const dictRes = await appStore.setDictData()
           if (dictRes) {
             boole = true
-          } else this.loginOut()
+          }
         }
       } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(params.phone)) {
         await this.generateRoutes()

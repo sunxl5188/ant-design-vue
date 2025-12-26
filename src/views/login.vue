@@ -132,10 +132,11 @@ const handleSubmit = (): void => {
     .then(async () => {
       buttonState.value = true
       const res = await userStore.login(formData)
-      console.log('🚀 ~ handleSubmit ~ res:', res)
       if (res) {
         notify.success('登录成功')
-        router.push('/')
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
       } else {
         notify.error('登录失败,请检查您的账户信息')
       }

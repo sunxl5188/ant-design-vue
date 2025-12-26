@@ -164,12 +164,12 @@ instance.interceptors.request.use(
 				cancel: c
 			})
 		}) */
-    const { userInfo } = JSON.parse(
+    const { token } = JSON.parse(
       localStorage.getItem('userStore' + __APP_VERSION__) || '{}'
     )
-    if (userInfo?.token && config.headers) {
-      config.headers.Authorization = userInfo.token
-      config.headers.Token = userInfo.token
+    if (token && config.headers) {
+      config.headers.Authorization = token
+      config.headers.Token = token
     }
     return config
   },

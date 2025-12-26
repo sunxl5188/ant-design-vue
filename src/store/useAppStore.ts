@@ -83,7 +83,7 @@ export const useAppStore = defineStore('app', {
     // 设置字典数据
     async setDictData(): Promise<boolean> {
       return new Promise(resolve => {
-        fetch('/home/index/webSystemDictAll')
+        fetch('/dict/getAll')
           .then(res => {
             if (res.code === 200) {
               this.dictData = res.data
