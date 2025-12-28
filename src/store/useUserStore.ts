@@ -18,7 +18,6 @@ export const useUserStore = defineStore('user', {
   actions: {
     //登录
     async login(params: any): Promise<boolean> {
-      const appStore = useAppStore()
       let boole: boolean = false
       if (params.userName && params.password) {
         const { code, data } = await loginAccount({
@@ -30,19 +29,11 @@ export const useUserStore = defineStore('user', {
           this.userInfo = data.userInfo
           this.permissions = data.permissions
           await this.generateRoutes()
-          // 获取字典数据
-          const dictRes = await appStore.setDictData()
-          if (dictRes) {
-            boole = true
-          }
+          boole = true
         }
       } else if (/^1[3-9]\d{9}$|^0\d{2,3}-\d{7,8}$/.test(params.phone)) {
         await this.generateRoutes()
-        // 获取字典数据
-        const dictRes = await appStore.setDictData()
-        if (dictRes) {
-          boole = true
-        } else this.loginOut()
+        boole = true
       }
       return boole
     },
@@ -141,11 +132,7 @@ export const useUserStore = defineStore('user', {
     //更新系统缓存数据
     updateSystemCache(): Promise<boolean> {
       return new Promise(resolve => {
-        const appStore = useAppStore()
-        appStore
-          .setDictData()
-          .then(() => resolve(true))
-          .catch(() => resolve(false))
+        resolve(true)
       })
     }
   },

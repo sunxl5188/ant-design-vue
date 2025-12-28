@@ -22,9 +22,10 @@
             <template v-if="dataIndex === 'status'">
               <span
                 :class="[
-                  { 'text-green-500': record.status === '启用' },
-                  { 'text-red-500': record.status === '禁用' }
+                  { 'text-green-500': record.status === '1' },
+                  { 'text-red-500': record.status === '2' }
                 ]"
+                v-dict="{ user_status: text }"
               >
                 {{ text }}
               </span>
@@ -71,27 +72,27 @@
 import type { TableColumnProps } from 'ant-design-vue'
 import BaseTable from '@/components/BaseTable'
 import BaseSearch from '@/components/BaseSearch'
+import { userPage } from '@/api/systemcUser'
 
 const search = reactive({
+  formData: {} as Record<string, any>,
   formItem: [
     { label: '账号', prop: 'account', value: undefined },
-    { label: '姓名', prop: 'name', value: undefined },
+    { label: '姓名', prop: 'nickName', value: undefined },
     {
       label: '性别',
-      prop: 'gender',
+      prop: 'sex',
       value: undefined,
       type: 'select',
       dict: 'sex'
     },
     { label: '手机号', prop: 'phone', value: undefined },
-    { label: '用户状态', prop: 'status', value: undefined },
     {
-      label: '用户类型',
-      prop: 'type',
+      label: '用户状态',
+      prop: 'status',
       value: undefined,
       type: 'select',
-      api: '/home/index/webSystemDict',
-      params: { dictType: 'week' }
+      dict: 'user_status'
     },
     {
       label: '部门',
@@ -101,7 +102,7 @@ const search = reactive({
   ],
   //搜索
   handleSearch(formData: any) {
-    console.log('搜索数据', formData)
+    search.formData = formData
     table.handleLoad()
   }
 })
@@ -109,272 +110,17 @@ const search = reactive({
 //表格
 const table = reactive({
   loading: false,
-  dataSource: [
-    {
-      id: 1,
-      account: '用户账号user1',
-      name: '张三姓名1',
-      gender: '男',
-      phone: '13800000001',
-      dept: '北京国炬软件信息/低代码研发小组',
-      mainDept: '‌安全监察质量部',
-      mainPost: '负责安全监督',
-      partPost: '',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 2,
-      account: 'user2',
-      name: '姓名2',
-      gender: '女',
-      phone: '13800000002',
-      dept: '北京敲敲云科技',
-      mainDept: '',
-      mainPost: '岗位2',
-      partPost: '质量管控',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 3,
-      account: 'user3',
-      name: '姓名3',
-      gender: '男',
-      phone: '13800000003',
-      dept: '部门3',
-      mainDept: '主部门3',
-      mainPost: '岗位3',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 4,
-      account: 'user4',
-      name: '姓名4',
-      gender: '女',
-      phone: '13800000004',
-      dept: '部门4',
-      mainDept: '主部门1',
-      mainPost: '岗位4',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 5,
-      account: 'user5',
-      name: '姓名5',
-      gender: '男',
-      phone: '13800000005',
-      dept: '部门5',
-      mainDept: '主部门2',
-      mainPost: '岗位1',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 6,
-      account: 'user6',
-      name: '姓名6',
-      gender: '女',
-      phone: '13800000006',
-      dept: '部门1',
-      mainDept: '主部门3',
-      mainPost: '岗位2',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 7,
-      account: 'user7',
-      name: '姓名7',
-      gender: '男',
-      phone: '13800000007',
-      dept: '部门2',
-      mainDept: '主部门1',
-      mainPost: '岗位3',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 8,
-      account: 'user8',
-      name: '姓名8',
-      gender: '女',
-      phone: '13800000008',
-      dept: '部门3',
-      mainDept: '主部门2',
-      mainPost: '岗位4',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 9,
-      account: 'user9',
-      name: '姓名9',
-      gender: '男',
-      phone: '13800000009',
-      dept: '部门4',
-      mainDept: '主部门3',
-      mainPost: '岗位1',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 10,
-      account: 'user10',
-      name: '姓名10',
-      gender: '女',
-      phone: '13800000010',
-      dept: '部门5',
-      mainDept: '主部门1',
-      mainPost: '岗位2',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 11,
-      account: 'user11',
-      name: '姓名11',
-      gender: '男',
-      phone: '13800000011',
-      dept: '部门1',
-      mainDept: '主部门2',
-      mainPost: '岗位3',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 12,
-      account: 'user12',
-      name: '姓名12',
-      gender: '女',
-      phone: '13800000012',
-      dept: '部门2',
-      mainDept: '主部门3',
-      mainPost: '岗位4',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 13,
-      account: 'user13',
-      name: '姓名13',
-      gender: '男',
-      phone: '13800000013',
-      dept: '部门3',
-      mainDept: '主部门1',
-      mainPost: '岗位1',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 14,
-      account: 'user14',
-      name: '姓名14',
-      gender: '女',
-      phone: '13800000014',
-      dept: '部门4',
-      mainDept: '主部门2',
-      mainPost: '岗位2',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 15,
-      account: 'user15',
-      name: '姓名15',
-      gender: '男',
-      phone: '13800000015',
-      dept: '部门5',
-      mainDept: '主部门3',
-      mainPost: '岗位3',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 16,
-      account: 'user16',
-      name: '姓名16',
-      gender: '女',
-      phone: '13800000016',
-      dept: '部门1',
-      mainDept: '主部门1',
-      mainPost: '岗位4',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 17,
-      account: 'user17',
-      name: '姓名17',
-      gender: '男',
-      phone: '13800000017',
-      dept: '部门2',
-      mainDept: '主部门2',
-      mainPost: '岗位1',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 18,
-      account: 'user18',
-      name: '姓名18',
-      gender: '女',
-      phone: '13800000018',
-      dept: '部门3',
-      mainDept: '主部门3',
-      mainPost: '岗位2',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    },
-    {
-      id: 19,
-      account: 'user19',
-      name: '姓名19',
-      gender: '男',
-      phone: '13800000019',
-      dept: '部门4',
-      mainDept: '主部门1',
-      mainPost: '岗位3',
-      partPost: '兼职1',
-      status: '启用',
-      act: ''
-    },
-    {
-      id: 20,
-      account: 'user20',
-      name: '姓名20',
-      gender: '女',
-      phone: '13800000020',
-      dept: '部门5',
-      mainDept: '主部门2',
-      mainPost: '岗位4',
-      partPost: '兼职2',
-      status: '禁用',
-      act: ''
-    }
-  ],
+  dataSource: [],
   columns: [
     { title: '用户账号', dataIndex: 'account', align: 'center', minWidth: 120 },
-    { title: '用户姓名', dataIndex: 'name', align: 'center' },
-    { title: '性别', dataIndex: 'gender', width: 80, align: 'center' },
+    { title: '用户姓名', dataIndex: 'nickName', align: 'center' },
+    {
+      title: '性别',
+      dataIndex: 'sex',
+      width: 80,
+      align: 'center',
+      dict: 'sex'
+    },
     { title: '手机号', dataIndex: 'phone', align: 'center' },
     {
       title: '部门',
@@ -385,7 +131,12 @@ const table = reactive({
     { title: '负责部门', dataIndex: 'mainDept' },
     { title: '主岗位', dataIndex: 'mainPost', align: 'center' },
     { title: '兼职岗位', dataIndex: 'partPost', align: 'center' },
-    { title: '状态', dataIndex: 'status', align: 'center' },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      align: 'center',
+      dict: 'user_status'
+    },
     {
       title: '操作',
       dataIndex: 'act',
@@ -394,6 +145,7 @@ const table = reactive({
       align: 'center'
     }
   ] as TableColumnProps[],
+  total: 0,
   selectedRowKeys: [] as Array<any>,
   selectedRows: [] as Array<any>,
   attr: {
@@ -402,6 +154,11 @@ const table = reactive({
   //加载数据
   handleLoad: async () => {
     table.loading = true
+    const { code, data } = await userPage(search.formData)
+    if (code === 200) {
+      table.dataSource = data.records
+      table.total = data.total
+    }
     table.loading = false
   },
   handleSelection({
@@ -425,6 +182,10 @@ const table = reactive({
   handleMenu({ key }: { key: string }, record: any) {
     console.log(key, record)
   }
+})
+
+onMounted(() => {
+  table.handleLoad()
 })
 
 const { loading, dataSource, columns } = toRefs(table)

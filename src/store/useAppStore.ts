@@ -1,6 +1,5 @@
 import type { ThemeTokenType, SiderTabType } from '@/types/useAppStore.d.ts'
 import { defineStore } from 'pinia'
-import { fetch } from '@/utils/request'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import enUS from 'ant-design-vue/es/locale/en_US'
 
@@ -20,7 +19,7 @@ export const useAppStore = defineStore('app', {
     refreshKey: {} as Record<string, number>, // 用于强制刷新页面的 key
     refreshState: false as boolean, // 强制刷新状态
     keepAliveList: [] as Array<string>, //需要缓存的路由名称
-    dictData: {} as Record<string, Array<{ text: string; value: any }>> //数据字典
+    dictData: {} as Record<string, Array<{ label: string; value: any }>> //数据字典
   }),
   actions: {
     // 设置主题
@@ -81,17 +80,8 @@ export const useAppStore = defineStore('app', {
       this.keepAliveList = list
     },
     // 设置字典数据
-    async setDictData(): Promise<boolean> {
-      return new Promise(resolve => {
-        fetch('/dict/getAll')
-          .then(res => {
-            if (res.code === 200) {
-              this.dictData = res.data
-              resolve(true)
-            } else resolve(false)
-          })
-          .catch(() => resolve(false))
-      })
+    setDictData(key: string, data: Array<{ label: string; value: any }>) {
+      this.dictData[key] = data
     }
   },
   getters: {
