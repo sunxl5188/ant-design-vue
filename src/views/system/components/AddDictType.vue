@@ -1,5 +1,7 @@
 <template>
-  <a-button v-if="isEdit" type="link">编辑</a-button>
+  <a-button v-if="isEdit" type="link" @click="modal.handleShowModal">
+    编辑
+  </a-button>
   <a-button v-else type="primary" @click="modal.handleShowModal">
     新增字典
   </a-button>
@@ -25,10 +27,10 @@
 
 <script setup lang="ts" name="AddDictType">
 import BaseForm from '@/components/BaseForm'
-import { addOrDictType } from '@/api/systemDict'
+import { addOrDictType, editDictType } from '@/api/systemDict'
 import { useModal } from '@/utils/useModal'
 
-defineProps({
+const props = defineProps({
   isEdit: { type: Boolean, default: false },
   record: { type: Object, default: () => ({}) }
 })
@@ -44,6 +46,11 @@ const modal = reactive({
   formData: {},
   // 弹框显示
   handleShowModal() {
+    if (props.isEdit) {
+      form.record = { ...props.record }
+    } else {
+      form.record = {}
+    }
     modal.visible = true
   },
   //关闭弹窗
@@ -55,33 +62,36 @@ const modal = reactive({
 const formRef = ref<InstanceType<typeof BaseForm> | null>(null)
 const form = reactive({
   record: {},
-  formItem: [
-    {
-      label: '字典名称',
-      prop: 'dictName',
-      value: undefined,
-      attr: {
-        placeholder: '请输入字典名称'
+  formItem: computed(() => {
+    return [
+      {
+        label: '字典名称',
+        prop: 'dictName',
+        value: undefined,
+        attr: {
+          placeholder: '请输入字典名称'
+        }
+      },
+      {
+        label: '字典编码',
+        prop: 'dictCode',
+        value: undefined,
+        attr: {
+          placeholder: '请输入字典编码',
+          disabled: props.isEdit
+        }
+      },
+      {
+        label: '描述',
+        prop: 'description',
+        value: undefined,
+        type: 'textarea',
+        attr: {
+          placeholder: '请输入描述'
+        }
       }
-    },
-    {
-      label: '字典编码',
-      prop: 'dictCode',
-      value: undefined,
-      attr: {
-        placeholder: '请输入字典编码'
-      }
-    },
-    {
-      label: '描述',
-      prop: 'description',
-      value: undefined,
-      type: 'textarea',
-      attr: {
-        placeholder: '请输入描述'
-      }
-    }
-  ],
+    ]
+  }),
   formRules: {
     dictName: [{ required: true, message: '请输入字典名称', trigger: 'blur' }],
     dictCode: [{ required: true, message: '请输入字典编码', trigger: 'blur' }]
@@ -93,7 +103,12 @@ const form = reactive({
       modal.confirmLoading = false
     })
     try {
-      const { code, msg } = await addOrDictType(formData)
+      let serviceApi = addOrDictType
+      if (props.isEdit) {
+        serviceApi = editDictType
+        if (formData) formData.id = props.record.id
+      }
+      const { code, msg } = await serviceApi(formData)
       if (code === 200) {
         message.success(msg)
         modal.handleCancel()

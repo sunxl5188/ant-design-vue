@@ -9,7 +9,6 @@
           <a-button type="primary">添加用户</a-button>
           <a-button danger>批量删除</a-button>
         </a-space>
-        {{ getDictFilter('user_status', ['1', '2']) }}
         <BaseTable
           :loading="loading"
           :data-source="dataSource"

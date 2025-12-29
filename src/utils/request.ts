@@ -157,7 +157,7 @@ instance.interceptors.response.use(
       // 全局的请求次数,请求的间隙
       const [RETRY_COUNT, RETRY_DELAY] = [1, 1000]
 
-      if (config && RETRY_COUNT && response.status !== 404) {
+      if (config && RETRY_COUNT && ![404, 500].includes(response.status)) {
         config._count = config._count ?? 0
         if (config._count >= RETRY_COUNT) {
           throw new Error('请求超时，请稍后重试')
@@ -222,7 +222,7 @@ export const put = <T = any>(
   config?: AxiosRequestConfig
 ): Promise<PromiseResult<T>> => {
   return instance
-    .put(url, { ...config, data })
+    .put(url, data, config)
     .then((response: any) => response as PromiseResult<T>)
 }
 
@@ -239,7 +239,7 @@ export const patch = <T = any>(
   config?: AxiosRequestConfig
 ): Promise<PromiseResult<T>> => {
   return instance
-    .patch(url, { ...config, data })
+    .patch(url, data, config)
     .then((response: any) => response as PromiseResult<T>)
 }
 

@@ -1,5 +1,4 @@
 <template>
-  {{ formData }}
   <a-form
     :ref="(el:any) => (form.formRef = el)"
     :model="formData"

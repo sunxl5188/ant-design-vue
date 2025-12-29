@@ -45,6 +45,7 @@ interface PropsType {
   columns: TableColumnProps[]
   dataSource: Array<any>
   pagination?: PaginationProps
+  total: number
   attr?: TableProps
   event?: any
   expanded?: boolean
@@ -65,6 +66,7 @@ const props = withDefaults(defineProps<PropsType>(), {
   pagination: () => {
     return {}
   },
+  total: 0,
   attr: () => {
     return {}
   },
@@ -131,17 +133,18 @@ const state = reactive({
     let obj: PaginationProps = {
       current: 1,
       pageSize: 10,
-      total: 0,
+      total: props.total,
       pageSizeOptions: ['10', '20', '50', '100'],
       showQuickJumper: true,
       showLessItems: false,
-      showSizeChanger: true
+      showSizeChanger: true,
+      showTotal: (total: number) => `共 ${total} 条`
     }
     if (pageSize && pageSize < 10) {
       obj = {
         current: 1,
         pageSize: 5,
-        total: 0,
+        total: props.total,
         pageSizeOptions: [`${pageSize}`, '10', '20', '30', '50'],
         showQuickJumper: false,
         showLessItems: true,

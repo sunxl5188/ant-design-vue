@@ -1,4 +1,4 @@
-import { post, del } from '@/utils/request'
+import { post, del, patch } from '@/utils/request'
 import type { PromiseResult } from '@/utils/request'
 
 //获取字典列表
@@ -18,6 +18,19 @@ export function getDictList(params: any): Promise<PromiseResult> {
 export function addOrDictType(data: any): Promise<PromiseResult> {
   return new Promise((resolve, reject) => {
     post('/dict/addDictType', data)
+      .then(res => {
+        resolve(res)
+      })
+      .catch((error: any) => {
+        reject(error)
+      })
+  })
+}
+
+//编辑字典类型
+export function editDictType(data: any): Promise<PromiseResult> {
+  return new Promise((resolve, reject) => {
+    patch('/dict/editDictType', data)
       .then(res => {
         resolve(res)
       })

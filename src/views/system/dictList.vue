@@ -26,20 +26,19 @@
       :data-source="dataSource"
       :columns="columns"
       :attr="table.attr"
+      :total="table.total"
+      :pagination="table.pagination"
       @rowSelection="table.handleSelection"
       @change="table.handleLoad"
     >
       <template #bodyCell="{ record, column: { dataIndex } }">
         <template v-if="dataIndex === 'act'">
           <a-space :size="0">
-            <add-dict-type @refresh="search.handleReset" is-edit />
-            <a-button
-              type="link"
-              size="small"
-              @click="table.handleShowDrawer(record, 1)"
-            >
-              编辑
-            </a-button>
+            <add-dict-type
+              is-edit
+              :record="record"
+              @refresh="search.handleReset"
+            />
             <a-button
               type="link"
               size="small"
@@ -81,7 +80,7 @@ const search = reactive({
   //搜索
   handleSearch(formData: any) {
     search.formData = formData
-    //table.handleLoad()
+    table.handleLoad()
   },
   //重置
   handleReset() {
@@ -104,6 +103,10 @@ const table = reactive({
       fixed: 'right'
     }
   ] as TableColumnProps[],
+  pagination: {
+    current: 1,
+    pageSize: 10
+  },
   total: 0,
   pages: {
     current: 1,
