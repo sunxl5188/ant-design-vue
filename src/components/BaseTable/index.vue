@@ -53,7 +53,7 @@ interface PropsType {
   divId?: string
 }
 
-const emit = defineEmits(['rowSelection'])
+const emit = defineEmits(['rowSelection', 'change'])
 let resizeObserver: ResizeObserver | null = null
 
 const props = withDefaults(defineProps<PropsType>(), {
@@ -180,6 +180,7 @@ const state = reactive({
     }
     // 过滤
     props.event?.onFilter?.(filters)
+    emit('change', { pagination, filters, sorter })
   },
   //计算表格高度
   handleTableHeight() {

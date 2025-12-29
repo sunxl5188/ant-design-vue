@@ -144,8 +144,10 @@ const form = reactive({
   }),
   searchStyle: computed(() => {
     let style = ''
-    if(form.collapsedShow) {
-      style = form.isCollapsed ? `height: ${form.boxHeight}px` : `height: ${form.docHeight}px`
+    if (form.collapsedShow) {
+      style = form.isCollapsed
+        ? `height: ${form.boxHeight}px`
+        : `height: ${form.docHeight}px`
     }
     return style
   }),
@@ -164,7 +166,7 @@ const form = reactive({
       const len = props.formItem.length
       const rowDom: any = document.querySelector('.base-search .ant-row')
       const colDom: any = document.querySelector('.base-search .ant-col')
-      if(!rowDom || !colDom) return
+      if (!rowDom || !colDom) return
       const colHeight = colDom?.offsetHeight || 44
       const rowCol = Math.round(rowDom.offsetWidth / colDom.offsetWidth)
       form.boxHeight = rowDom.offsetHeight
@@ -198,6 +200,10 @@ onBeforeUnmount(() => {
 })
 
 const { isCollapsed, formData, handleSearch, handleReset } = toRefs(form)
+
+defineExpose({
+  handleReset: form.handleReset
+})
 </script>
 
 <style lang="less" scoped>

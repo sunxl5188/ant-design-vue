@@ -9,6 +9,7 @@
           <a-button type="primary">添加用户</a-button>
           <a-button danger>批量删除</a-button>
         </a-space>
+        {{ getDictFilter('user_status', ['1', '2']) }}
         <BaseTable
           :loading="loading"
           :data-source="dataSource"
@@ -18,16 +19,18 @@
           :selectedRows="table.selectedRows"
           @rowSelection="table.handleSelection"
         >
-          <template #bodyCell="{ text, record, column: { dataIndex } }">
+          <template #bodyCell="{ text, record, column: { dataIndex, dict } }">
+            <template v-if="dict">
+              {{ getDictFilter(dict, text) }}
+            </template>
             <template v-if="dataIndex === 'status'">
               <span
                 :class="[
                   { 'text-green-500': record.status === '1' },
                   { 'text-red-500': record.status === '2' }
                 ]"
-                v-dict="{ user_status: text }"
               >
-                {{ text }}
+                {{ getDictFilter('user_status', text) }}
               </span>
             </template>
             <template v-if="dataIndex === 'act'">
@@ -72,7 +75,8 @@
 import type { TableColumnProps } from 'ant-design-vue'
 import BaseTable from '@/components/BaseTable'
 import BaseSearch from '@/components/BaseSearch'
-import { userPage } from '@/api/systemcUser'
+import { userPage } from '@/api/systemUser'
+import { getDictFilter } from '@/utils'
 
 const search = reactive({
   formData: {} as Record<string, any>,

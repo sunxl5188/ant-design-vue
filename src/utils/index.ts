@@ -1,5 +1,6 @@
 import ClipboardJS from 'clipboard'
-import { useAppStore } from '@/store/useAppStore'
+import { useAppStore } from '@/store'
+import { fetch } from './request'
 
 /**
  * @复制文本
@@ -32,20 +33,46 @@ export const getAssetsFile = (fileName: string) => {
 
 /**
  * @查找字典名称
- * @param dictType 字典类型
+ * @param type 字典类型
  * @param value 字典对应的值
  * @returns 返回名称
  */
-export function getDictFilter(dictType: string, value: string): string {
+export function getDictFilter(type: string, value: string | Array<string>) {
   let result = '--'
-  if (!dictType || !value) {
-    return result
+  if (!type || !value) return result
+
+  const handleString = (dictData: Array<{ label: string; value: any }>) => {
+    let dictItem = null
+    if (Array.isArray(value)) {
+      dictItem = dictData
+        .filter((item: any) => value.includes(item.value))
+        ?.map((i: any) => i.label)
+      if (dictItem.length) {
+        result = dictItem.join('、')
+      }
+    } else {
+      dictItem = dictData.find((item: any) => item.value === value)
+      if (dictItem) {
+        result = dictItem.label
+      }
+    }
+    return result || '--'
   }
+
   const appStore = useAppStore()
-  const dictData = appStore.dictData[dictType] || []
-  const dictItem = dictData.find((item: any) => item.value === value)
-  if (dictItem) {
-    result = dictItem.text || '--'
+  let dictData = appStore.dictData[type] || []
+  if (dictData?.length) {
+    return handleString(dictData)
   }
-  return result
+  fetch(import.meta.env.VITE_DICT_API, {
+    type
+  })
+    .then(({ code, data }) => {
+      if (code === 200) {
+        dictData = data
+        appStore.setDictData(type, dictData)
+        return handleString(dictData)
+      }
+    })
+    .catch(err => err)
 }

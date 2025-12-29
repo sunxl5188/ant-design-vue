@@ -5,8 +5,7 @@ import type {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
-  InternalAxiosRequestConfig,
-  AxiosPromise
+  InternalAxiosRequestConfig
 } from 'axios'
 import { useModal } from './useModal'
 
@@ -15,12 +14,14 @@ declare module 'axios' {
   interface InternalAxiosRequestConfig {
     _count?: number
   }
-  interface AxiosResponse {
-    code?: number
-  }
 }
 
-export type PromiseResult = AxiosResponse | PromiseLike<AxiosResponse>
+export type PromiseResult<T = any> = {
+  code: number
+  msg: string
+  data: T
+  [key: string]: any
+}
 
 const { message } = useModal()
 const handleMessage = (content: string): void => {
@@ -32,6 +33,7 @@ const handleMessage = (content: string): void => {
  * @param status
  * @param other
  */
+
 const errorHandle = (status: number, other: string) => {
   // 状态码判断
   switch (status) {
@@ -103,38 +105,6 @@ const errorHandle = (status: number, other: string) => {
   }
 }
 
-/* interface PendingType {
-	url?: string
-	method?: string
-	params: any
-	data: any
-	cancel: any
-} */
-
-//const pending: Array<PendingType> = []
-//const CancelToken = axios.CancelToken
-
-/* const removePending = (config: AxiosRequestConfig) => {
-	for (const key in pending) {
-		if (Object.hasOwn(pending, key)) {
-			const item: number = +key
-			const list: PendingType = pending[key]
-			// 当前请求在数组中存在时执行函数体
-			if (
-				list.url === config.url &&
-				list.method === config.method &&
-				JSON.stringify(list.params) === JSON.stringify(config.params) &&
-				JSON.stringify(list.data) === JSON.stringify(config.data)
-			) {
-				// 执行取消操作
-				list.cancel('操作太频繁，请稍后再试')
-				// 从数组中移除记录
-				pending.splice(item, 1)
-			}
-		}
-	}
-} */
-
 /**
  * 实例化配置
  */
@@ -154,16 +124,6 @@ const instance = axios.create({
  */
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    //removePending(config)
-    /* config.cancelToken = new CancelToken(c => {
-			pending.push({
-				url: config.url,
-				method: config.method,
-				params: config.params,
-				data: config.data,
-				cancel: c
-			})
-		}) */
     const { token } = JSON.parse(
       localStorage.getItem('userStore' + __APP_VERSION__) || '{}'
     )
@@ -184,10 +144,10 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   function (config: AxiosResponse) {
     // 请求成功
-    if (config.status === 200 || config.status === 204) {
+    if ([200, 201, 202, 204].includes(config.status)) {
       return Promise.resolve(config.data)
     }
-    return Promise.reject(config)
+    return Promise.reject(new Error('请求失败'))
   }, // 请求失败
   function (error: AxiosError) {
     const { response, config } = error
@@ -197,28 +157,16 @@ instance.interceptors.response.use(
       // 全局的请求次数,请求的间隙
       const [RETRY_COUNT, RETRY_DELAY] = [1, 1000]
 
-      if (config && RETRY_COUNT) {
-        // 设置用于跟踪重试计数的变量
+      if (config && RETRY_COUNT && response.status !== 404) {
         config._count = config._count ?? 0
-        // 检查是否已经把重试的总数用完
         if (config._count >= RETRY_COUNT) {
-          return Promise.reject(response ?? { message: error.message })
+          throw new Error('请求超时，请稍后重试')
         }
-        // 增加重试计数
         config._count++
-        // 创造新的Promise来处理指数后退
-        const backoff = new Promise<void>(resolve => {
-          setTimeout(() => {
-            resolve()
-          }, RETRY_DELAY || 1)
-        })
-        // instance重试请求的Promise
-        return backoff.then(() => {
-          return instance(config)
-        })
+        return new Promise(resolve => {
+          setTimeout(resolve, RETRY_DELAY || 1)
+        }).then(() => instance(config))
       }
-
-      return Promise.reject(response)
     }
     // 处理断网的情况
     // eg:请求超时或断网时，更新state的network状态
@@ -234,17 +182,14 @@ instance.interceptors.response.use(
  * @param config axios.config
  * @returns 返回数据
  */
-export const fetch = (
+export const fetch = <T = any>(
   url: string,
   params: object = {},
   config?: AxiosRequestConfig
-): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .get(url, { params: params, ...config })
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+): Promise<PromiseResult<T>> => {
+  return instance
+    .get(url, { params: params, ...config })
+    .then((response: any) => response as PromiseResult<T>)
 }
 
 /**
@@ -254,77 +199,65 @@ export const fetch = (
  * @param config axios.config
  * @returns 返回数据
  */
-export const post = (
+export const post = <T = any>(
   url: string,
   data: any,
   config?: AxiosRequestConfig
-): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .post(url, data, { ...config })
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+): Promise<PromiseResult<T>> => {
+  return instance
+    .post(url, data, { ...config })
+    .then((response: any) => response as PromiseResult<T>)
 }
 
 /**
  * Axios.PUT~完整的更新资源,修改数据:将所有数据都推送到后端
  * @param url API地址
- * @param params 参数
+ * @param data 参数
  * @param config axios.config
  * @returns 返回数据
  */
-export const put = (
+export const put = <T = any>(
   url: string,
-  params: any,
+  data: any,
   config?: AxiosRequestConfig
-): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .put(url, params, { ...config })
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+): Promise<PromiseResult<T>> => {
+  return instance
+    .put(url, { ...config, data })
+    .then((response: any) => response as PromiseResult<T>)
 }
 
 /**
  * Axios.PATCH~局部更新~修改数据：只将修改的数据推送到后端
  * @param url API地址
- * @param params 参数
+ * @param data 参数
  * @param config axios.config
  * @returns 返回数据
  */
-export const patch = (
+export const patch = <T = any>(
   url: string,
-  params: any,
+  data: any,
   config?: AxiosRequestConfig
-): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .patch(url, params, { ...config })
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+): Promise<PromiseResult<T>> => {
+  return instance
+    .patch(url, { ...config, data })
+    .then((response: any) => response as PromiseResult<T>)
 }
 
 /**
  * Axios.DELETE 用于删除数据
  * @param url API地址
- * @param params 参数
+ * @param data 参数
  * @param config axios.config
  * @returns 返回数据
  */
-export const del = (
+export const del = <T = any>(
   url: string,
-  params: any,
+  data: any,
   config?: AxiosRequestConfig
-): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .delete(url, { ...config, ...params })
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+): Promise<PromiseResult<T>> => {
+  return instance
+    .delete(url, { ...config, data })
+    .then((response: any) => response as PromiseResult<T>)
 }
 
 /**
@@ -332,11 +265,10 @@ export const del = (
  * @param config axios.config
  * @returns 返回数据
  */
-export const request = (config: AxiosRequestConfig): AxiosPromise => {
-  return new Promise((resolve, reject) => {
-    instance
-      .request(config)
-      .then(response => resolve(response))
-      .catch(error => reject(error))
-  })
+export const request = <T = any>(
+  config: AxiosRequestConfig
+): Promise<PromiseResult<T>> => {
+  return instance
+    .request(config)
+    .then((response: any) => response as PromiseResult<T>)
 }
