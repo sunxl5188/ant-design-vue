@@ -1,9 +1,11 @@
 import type { ThemeTokenType, SiderTabType } from '@/types/useAppStore.d.ts'
 import { defineStore } from 'pinia'
+import { fetch } from '@/utils/request'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import enUS from 'ant-design-vue/es/locale/en_US'
 
 type ThemeType = 'light' | 'dark'
+type DictOptionType = { label: string; value: string | number; color?: string }
 export type LanguageType = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', {
@@ -80,8 +82,30 @@ export const useAppStore = defineStore('app', {
       this.keepAliveList = list
     },
     // 设置字典数据
-    setDictData(key: string, data: Array<{ label: string; value: any }>) {
+    setDictData(key: string, data: Array<DictOptionType>) {
       this.dictData[key] = data
+    },
+    //获取字典数据并缓存
+    fetchDictData(type: string): Promise<Array<DictOptionType>> {
+      return new Promise(resolve => {
+        fetch('/dict/getByType', { type })
+          .then(({ code, data }) => {
+            if (code === 200) {
+              this.setDictData(type, data)
+              resolve(data)
+            } else {
+              resolve([])
+            }
+          })
+          .catch(err => {
+            console.log('🚀 ~ :', err)
+            resolve([])
+          })
+      })
+    },
+    // 清除缓存
+    clearStore() {
+      this.$reset()
     }
   },
   getters: {
@@ -90,6 +114,13 @@ export const useAppStore = defineStore('app', {
      */
     currentTab: state => {
       return state.selectedKeys[0]
+    },
+    /**
+     * 根据字典类型获取字典选项
+     */
+    getDictOptions: state => (type: string) => {
+      const data: Array<DictOptionType> = state.dictData[type] || []
+      return data
     }
   },
   persist: {

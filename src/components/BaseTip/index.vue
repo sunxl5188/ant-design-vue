@@ -1,5 +1,8 @@
 <template>
-  <a-tooltip>
+  <template v-if="disabled">
+    <slot></slot>
+  </template>
+  <a-tooltip v-else>
     <template #title v-if="!isOverflow">
       <slot name="title">{{ title }}</slot>
     </template>
@@ -19,7 +22,8 @@
 <script setup lang="ts" name="BaseTip">
 defineProps({
   title: { type: String, default: '' },
-  isOverflow: { type: Boolean, default: false }
+  isOverflow: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false }
 })
 
 //判断文本是否益出~文本必须是单行

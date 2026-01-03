@@ -6,6 +6,7 @@
     :pagination="state.pagination"
     v-bind="state.attribute"
     v-on="event"
+    style="height: 100%"
     @change="state.handleChange"
   >
     <template #bodyCell="{ text, record, index, column }">
@@ -44,17 +45,24 @@ interface PropsType {
   loading: boolean
   columns: TableColumnProps[]
   dataSource: Array<any>
-  pagination?: PaginationProps
-  total: number
+  current?: number
+  pageSize?: number
+  total?: number
   attr?: TableProps
   event?: any
   expanded?: boolean
   selectedRowKeys?: Array<any>
   selectedRows?: Array<any>
+  fullHeight?: boolean // 是否全高显示
   divId?: string
 }
 
-const emit = defineEmits(['rowSelection', 'change'])
+const emit = defineEmits([
+  'rowSelection',
+  'change',
+  'update:current',
+  'update:pageSize'
+])
 let resizeObserver: ResizeObserver | null = null
 
 const props = withDefaults(defineProps<PropsType>(), {
@@ -63,9 +71,8 @@ const props = withDefaults(defineProps<PropsType>(), {
     return []
   },
   dataSource: () => [],
-  pagination: () => {
-    return {}
-  },
+  current: 1,
+  pageSize: 10,
   total: 0,
   attr: () => {
     return {}
@@ -80,6 +87,7 @@ const props = withDefaults(defineProps<PropsType>(), {
   selectedRows: () => {
     return []
   },
+  fullHeight: false,
   divId: 'table-card'
 })
 
@@ -118,6 +126,7 @@ const state = reactive({
       rowKey: 'id',
       bordered: true,
       minWidth: 80,
+      size: 'middle',
       scroll: {
         x: 'max-content',
         y: undefined as string | number | undefined,
@@ -129,32 +138,30 @@ const state = reactive({
     props.attr
   ),
   pagination: computed(() => {
-    const { pageSize } = props.pagination
     let obj: PaginationProps = {
-      current: 1,
-      pageSize: 10,
+      current: props.current,
+      pageSize: props.pageSize,
       total: props.total,
       pageSizeOptions: ['10', '20', '50', '100'],
       showQuickJumper: true,
       showLessItems: false,
       showSizeChanger: true,
+      size: 'default',
       showTotal: (total: number) => `共 ${total} 条`
     }
-    if (pageSize && pageSize < 10) {
+    if (props.pageSize < 10) {
       obj = {
-        current: 1,
-        pageSize: 5,
+        current: props.current,
+        pageSize: props.pageSize,
         total: props.total,
-        pageSizeOptions: [`${pageSize}`, '10', '20', '30', '50'],
+        pageSizeOptions: [`${props.pageSize}`, '10', '20', '30', '50'],
         showQuickJumper: false,
         showLessItems: true,
-        showSizeChanger: false
+        showSizeChanger: false,
+        size: 'default'
       }
     }
-    return {
-      ...obj,
-      ...props.pagination
-    }
+    return obj
   }),
   //判断文本是否益出~文本必须是单行
   tooltipDisabled: false,
@@ -173,8 +180,9 @@ const state = reactive({
   }),
   //分页、排序、筛选变化时触发
   handleChange(pagination: PaginationProps, filters: any, sorter: any) {
-    state.pagination.current = pagination.current || 1
-    if (pagination.pageSize) state.pagination.pageSize = pagination.pageSize
+    const { current, pageSize } = pagination
+    emit('update:current', current)
+    emit('update:pageSize', pageSize)
     // 排序
     if (sorter?.field) {
       console.log(sorter)
@@ -234,11 +242,13 @@ const state = reactive({
 
 onMounted(() => {
   //监听元素尺寸变化
-  resizeObserver = new ResizeObserver(() => {
-    state.handleTableHeight()
-  })
-  const tableCard = document.getElementById(props.divId)
-  if (tableCard) resizeObserver.observe(tableCard)
+  if (props.fullHeight) {
+    resizeObserver = new ResizeObserver(() => {
+      state.handleTableHeight()
+    })
+    const tableCard = document.getElementById(props.divId)
+    if (tableCard) resizeObserver.observe(tableCard)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -261,3 +271,15 @@ watch(
   { immediate: true }
 )
 </script>
+
+<style lang="less" scoped>
+:deep(.ant-table-cell) {
+  .ant-space-item {
+    line-height: normal;
+  }
+  .ant-btn.ant-btn-link.ant-btn-sm {
+    height: unset;
+    border: none;
+  }
+}
+</style>

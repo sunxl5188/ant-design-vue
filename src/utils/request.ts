@@ -7,6 +7,7 @@ import type {
   AxiosError,
   InternalAxiosRequestConfig
 } from 'axios'
+import { useUserStore } from '@/store'
 import { useModal } from './useModal'
 
 declare module 'axios' {
@@ -24,7 +25,19 @@ export type PromiseResult<T = any> = {
 }
 
 const { message } = useModal()
-const handleMessage = (content: string): void => {
+
+let has401Notified = false
+const handleMessage = (
+  content: string,
+  type: '401' | 'default' = 'default'
+): void => {
+  if (type === '401') {
+    if (has401Notified) return
+    has401Notified = true
+    setTimeout(() => {
+      has401Notified = false
+    }, 3000) // 3秒内只提示一次
+  }
   message.error(content)
 }
 
@@ -52,7 +65,7 @@ const errorHandle = (status: number, other: string) => {
     // 在登录成功后返回当前页面，这一步需要在登录页操作。
     //重定向
     case 401: {
-      handleMessage(`${status}:登录失效`)
+      handleMessage(`${status}:登录失效`, '401')
       break
     }
 
@@ -153,6 +166,13 @@ instance.interceptors.response.use(
     const { response, config } = error
     if (response) {
       errorHandle(response.status, (response.data as any).message)
+      if (response.status === 401) {
+        const userStore = useUserStore()
+        userStore.loginOut()
+        setTimeout(() => {
+          location.href = '/login'
+        }, 1500)
+      }
       // 超时重新请求
       // 全局的请求次数,请求的间隙
       const [RETRY_COUNT, RETRY_DELAY] = [1, 1000]

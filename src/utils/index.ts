@@ -1,6 +1,5 @@
 import ClipboardJS from 'clipboard'
 import { useAppStore } from '@/store'
-import { fetch } from './request'
 
 /**
  * @复制文本
@@ -60,19 +59,38 @@ export function getDictFilter(type: string, value: string | Array<string>) {
   }
 
   const appStore = useAppStore()
-  let dictData = appStore.dictData[type] || []
+  const dictData = appStore.getDictOptions(type)
   if (dictData?.length) {
     return handleString(dictData)
   }
-  fetch(import.meta.env.VITE_DICT_API, {
-    type
-  })
-    .then(({ code, data }) => {
-      if (code === 200) {
-        dictData = data
-        appStore.setDictData(type, dictData)
-        return handleString(dictData)
-      }
+  appStore
+    .fetchDictData(type)
+    .then(res => {
+      return handleString(res)
+    })
+    .catch(err => {
+      console.log('🚀 ~ :', err)
+    })
+}
+
+/**
+ * 获取字典颜色
+ * @param type 字典类型
+ * @param value 字典对应的值
+ * @returns 返回颜色值
+ */
+export function getDictColor(type: string, value: string) {
+  const appStore = useAppStore()
+  const dictData = appStore.getDictOptions(type)
+  if (dictData?.length) {
+    const dictItem = dictData.find((item: any) => item.value === value)
+    return dictItem?.color
+  }
+  appStore
+    .fetchDictData(type)
+    .then(res => {
+      const dictItem = res.find((item: any) => item.value === value)
+      return dictItem?.color || ''
     })
     .catch(err => err)
 }

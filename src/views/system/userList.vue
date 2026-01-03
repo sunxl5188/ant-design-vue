@@ -4,7 +4,7 @@
       <BaseSearch :formItem="search.formItem" @search="search.handleSearch" />
     </a-card>
     <div class="flex-1 overflow-y-auto" id="table-card">
-      <a-card size="small">
+      <a-card size="small" class="h-full">
         <a-space class="mb-2 table-card-header">
           <a-button type="primary">添加用户</a-button>
           <a-button danger>批量删除</a-button>
@@ -13,6 +13,10 @@
           :loading="loading"
           :data-source="dataSource"
           :columns="columns"
+          :total="table.total"
+          full-height
+          v-model:current="table.pages.current"
+          v-model:pageSize="table.pages.pageSize"
           :attr="table.attr"
           :selectedRowKeys="table.selectedRowKeys"
           :selectedRows="table.selectedRows"
@@ -20,16 +24,8 @@
         >
           <template #bodyCell="{ text, record, column: { dataIndex, dict } }">
             <template v-if="dict">
-              {{ getDictFilter(dict, text) }}
-            </template>
-            <template v-if="dataIndex === 'status'">
-              <span
-                :class="[
-                  { 'text-green-500': record.status === '1' },
-                  { 'text-red-500': record.status === '2' }
-                ]"
-              >
-                {{ getDictFilter('user_status', text) }}
+              <span :style="`color:${getDictColor(dict, text)}`">
+                {{ getDictFilter(dict, text) }}
               </span>
             </template>
             <template v-if="dataIndex === 'act'">
@@ -75,7 +71,7 @@ import type { TableColumnProps } from 'ant-design-vue'
 import BaseTable from '@/components/BaseTable'
 import BaseSearch from '@/components/BaseSearch'
 import { userPage } from '@/api/systemUser'
-import { getDictFilter } from '@/utils'
+import { getDictFilter, getDictColor } from '@/utils'
 
 const search = reactive({
   formData: {} as Record<string, any>,
@@ -106,6 +102,7 @@ const search = reactive({
   //搜索
   handleSearch(formData: any) {
     search.formData = formData
+    table.pages.current = 1
     table.handleLoad()
   }
 })
@@ -115,8 +112,12 @@ const table = reactive({
   loading: false,
   dataSource: [],
   columns: [
-    { title: '用户账号', dataIndex: 'account', align: 'center', minWidth: 120 },
-    { title: '用户姓名', dataIndex: 'nickName', align: 'center' },
+    { title: '用户账号', dataIndex: 'account', width: 120 },
+    {
+      title: '用户姓名',
+      dataIndex: 'nickName',
+      width: 120
+    },
     {
       title: '性别',
       dataIndex: 'sex',
@@ -124,21 +125,22 @@ const table = reactive({
       align: 'center',
       dict: 'sex'
     },
-    { title: '手机号', dataIndex: 'phone', align: 'center' },
+    { title: '手机号', dataIndex: 'phone', width: 140 },
     {
       title: '部门',
       dataIndex: 'dept',
       width: 200,
       tip: true
     },
-    { title: '负责部门', dataIndex: 'mainDept' },
-    { title: '主岗位', dataIndex: 'mainPost', align: 'center' },
-    { title: '兼职岗位', dataIndex: 'partPost', align: 'center' },
+    { title: '负责部门', dataIndex: 'mainDept', width: 200 },
+    { title: '主岗位', dataIndex: 'mainPost', align: 'center', width: 120 },
+    { title: '兼职岗位', dataIndex: 'partPost', align: 'center', width: 120 },
     {
       title: '状态',
       dataIndex: 'status',
       align: 'center',
-      dict: 'user_status'
+      dict: 'user_status',
+      width: 100
     },
     {
       title: '操作',
@@ -149,6 +151,10 @@ const table = reactive({
     }
   ] as TableColumnProps[],
   total: 0,
+  pages: {
+    current: 1,
+    pageSize: 10
+  },
   selectedRowKeys: [] as Array<any>,
   selectedRows: [] as Array<any>,
   attr: {

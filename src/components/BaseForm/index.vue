@@ -14,15 +14,47 @@
       :label="item.label"
       :name="item.prop"
     >
+      <!-- slot插槽 -->
+      <template v-if="item.slot">
+        <slot :name="item.slot" :formData="formData" :prop="item.prop"></slot>
+      </template>
+      <a-input-number
+        v-else-if="item.type === 'number'"
+        v-model:value="formData[item.prop]"
+        v-bind="form.getBindInputNumberValue(item)"
+      />
+      <!-- radio -->
+      <base-radio
+        v-else-if="item.type === 'radio'"
+        v-model:value="formData[item.prop]"
+        :isButton="item.isButton"
+        :options="item.options"
+        :dict="item.dict"
+        :api="item.api"
+        :params="item.params"
+        :fieldNames="item.fieldNames"
+      />
+      <!-- select -->
+      <base-select
+        v-else-if="item.type === 'select'"
+        v-model:value="formData[item.prop]"
+        :placeholder="item.placeholder || `请选择${item.label}`"
+        :options="item.options"
+        :dict="item.dict"
+        :api="item.api"
+        :params="item.params"
+        :fieldNames="item.fieldNames"
+        :mode="item.mode"
+      />
       <!-- 文本域 -->
       <a-textarea
-        v-if="item.type === 'textarea'"
+        v-else-if="item.type === 'textarea'"
         v-model:value="formData[item.prop]"
         v-bind="form.getBindTextareaValue(item)"
       />
       <!-- 输入框 -->
       <a-input
-        v-if="!item.type || item.type === 'input'"
+        v-else-if="!item.type || item.type === 'input'"
         v-model:value="formData[item.prop]"
         v-bind="form.getBindInputValue(item)"
       />
@@ -51,14 +83,15 @@ const form = reactive<BaseFormProps>({
   formData: {},
   //提交数据
   handleSubmit() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       form.formRef
         ?.validate()
         .then(() => {
-          resolve(form.formData)
+          resolve({ code: 200, msg: '验证成功', data: form.formData })
         })
         .catch((err: any) => {
-          reject(err)
+          console.log('🚀 ~ :', err)
+          resolve({ code: 0, msg: '验证失败', data: null })
         })
     })
   },
@@ -87,6 +120,15 @@ const form = reactive<BaseFormProps>({
         maxlength: 500,
         showCount: true,
         autoSize: { minRows: 4, maxRows: 5 },
+        ...item.attr
+      }
+    }
+  }),
+  // 获取数字输入框绑定属性
+  getBindInputNumberValue: computed(() => {
+    return (item: FormItemType) => {
+      return {
+        placeholder: item.placeholder || `请输入${item.label}`,
         ...item.attr
       }
     }

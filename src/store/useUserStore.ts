@@ -39,9 +39,7 @@ export const useUserStore = defineStore('user', {
     },
     loginOut() {
       return new Promise(resolve => {
-        this.token = ''
-        this.userInfo = {}
-        this.permissions = []
+        this.$reset()
         resolve(true)
       })
     },
@@ -131,7 +129,9 @@ export const useUserStore = defineStore('user', {
     },
     //更新系统缓存数据
     updateSystemCache(): Promise<boolean> {
+      const appStore = useAppStore()
       return new Promise(resolve => {
+        appStore.clearStore()
         resolve(true)
       })
     }

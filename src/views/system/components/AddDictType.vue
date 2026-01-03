@@ -1,5 +1,10 @@
 <template>
-  <a-button v-if="isEdit" type="link" @click="modal.handleShowModal">
+  <a-button
+    v-if="isEdit"
+    type="link"
+    size="small"
+    @click="modal.handleShowModal"
+  >
     编辑
   </a-button>
   <a-button v-else type="primary" @click="modal.handleShowModal">
@@ -98,26 +103,21 @@ const form = reactive({
   },
   //提交数据
   async handleSubmit() {
-    modal.confirmLoading = true
-    const formData = await formRef.value?.handleSubmit().catch(() => {
-      modal.confirmLoading = false
-    })
-    try {
+    const res = await formRef.value?.handleSubmit()
+    if (res?.code === 200) {
+      modal.confirmLoading = true
+      let data = { ...res.data }
       let serviceApi = addOrDictType
       if (props.isEdit) {
         serviceApi = editDictType
-        if (formData) formData.id = props.record.id
+        if (data) data.id = props.record.id
       }
-      const { code, msg } = await serviceApi(formData)
+      const { code, msg } = await serviceApi(data)
       if (code === 200) {
         message.success(msg)
         modal.handleCancel()
         emit('refresh')
       } else message.error(msg)
-      modal.confirmLoading = false
-    } catch (err: any) {
-      message.error(err?.message || '请求失败')
-    } finally {
       modal.confirmLoading = false
     }
   }

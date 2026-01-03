@@ -11,15 +11,13 @@
 
 <script setup lang="ts" name="BaseSelect">
 import type { SelectProps } from 'ant-design-vue'
-import { useAppStore } from '@/store'
-import { fetch } from '@/utils/request'
+import { useBaseForm } from '@/hooks/useBaseForm'
 
 interface StateType {
   value: string | number | Array<any> | undefined
   options: SelectProps['options']
   selectProps: SelectProps
   handleChange: (_value: any, _option: any) => void
-  handleLoad: () => Promise<void>
 }
 
 const props = defineProps({
@@ -62,8 +60,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:value', 'change'])
-const appStore = useAppStore()
-const { dictData } = toRefs(appStore)
+const { getDictData } = useBaseForm()
 
 const state = reactive<StateType>({
   value: undefined,
@@ -78,30 +75,11 @@ const state = reactive<StateType>({
   handleChange(value: any, option: any) {
     emit('update:value', value)
     emit('change', value, option)
-  },
-  // 从接口加载数据
-  async handleLoad() {
-    const { code, data } = await fetch(props.api, { ...props.params })
-    if (code === 200) {
-      state.options = data
-    }
   }
 })
 
 onMounted(async () => {
-  // 如果传入了dict，则从store的dictData中获取对应的数据作为选项
-  if (props.dict && dictData.value[props.dict]) {
-    state.options = dictData.value[props.dict] as Array<any>
-  } else if (props.api) {
-    // 如果传入了api，则调用对应的接口获取数据作为选项
-    const { code, data } = await fetch(props.api, props.params)
-    if (code === 200) {
-      state.options = data
-    }
-  } else {
-    // 否则使用传入的options作为选项
-    state.options = props.options
-  }
+  getDictData(state, props.dict, props.api, props.params, props.options)
 })
 
 watch(

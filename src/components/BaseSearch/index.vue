@@ -7,7 +7,7 @@
     <a-row :gutter="[16, 0]" class="fixed -z-10 -top-full">
       <a-col
         v-for="(item, i) in formItem"
-        :key="i"
+        :key="item.prop + i"
         :xs="24"
         :sm="12"
         :md="8"
@@ -200,10 +200,6 @@ onBeforeUnmount(() => {
 })
 
 const { isCollapsed, formData, handleSearch, handleReset } = toRefs(form)
-
-defineExpose({
-  handleReset: form.handleReset
-})
 </script>
 
 <style lang="less" scoped>
